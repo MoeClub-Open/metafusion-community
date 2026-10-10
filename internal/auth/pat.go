@@ -140,6 +140,7 @@ func patHash(token string) string {
 type patIdentity struct {
 	UserID      string
 	Username    string
+	Groups      []string
 	Permissions []string
 	// ExpiresAt 是令牌自身的过期时刻；零值表示永不过期。
 	ExpiresAt time.Time
@@ -150,7 +151,7 @@ type patIdentity struct {
 func (p patIdentity) principal() *Principal {
 	return &Principal{
 		ID: p.UserID, Username: p.Username,
-		Permissions: p.Permissions, FromPAT: true,
+		Permissions: p.Permissions, Groups: p.Groups, FromPAT: true,
 	}
 }
 
@@ -217,6 +218,7 @@ type patIntrospectResponse struct {
 	Valid       bool          `json:"valid"`
 	UserID      string        `json:"user_id"`
 	Username    string        `json:"username"`
+	Groups      []string      `json:"groups"`
 	Permissions []string      `json:"permissions"`
 	ExpiresAt   *patTimestamp `json:"expires_at"`
 }
@@ -300,6 +302,7 @@ func (p *PATIntrospector) fetch(ctx context.Context, token string) (patCacheEntr
 		UserID:      doc.UserID,
 		Username:    doc.Username,
 		Permissions: doc.Permissions,
+		Groups:      doc.Groups,
 	}
 	if doc.ExpiresAt != nil {
 		ident.ExpiresAt = doc.ExpiresAt.Time

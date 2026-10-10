@@ -37,7 +37,7 @@ func TestMessageLimiter(t *testing.T) {
 	}
 
 	// 3) 匀速回满：过一个"每令牌间隔"回一个令牌（不是整分钟整分钟地跳）。
-	now = now.Add(messageSendWindow / messageSendBurst)
+	now = now.Add(messageSendWindow/messageSendBurst + time.Nanosecond)
 	if ok, _ := l.allow("u1"); !ok {
 		t.Fatal("回满一个令牌后应放行")
 	}

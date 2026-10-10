@@ -14,7 +14,8 @@ func Open(ctx context.Context, dsn string) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.SetMaxOpenConns(10)
+	db.SetMaxOpenConns(32)
+	db.SetMaxIdleConns(16)
 	if err = db.PingContext(ctx); err != nil {
 		db.Close()
 		return nil, err

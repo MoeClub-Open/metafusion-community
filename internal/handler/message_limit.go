@@ -33,7 +33,7 @@ import (
 //     （UPDATE ... WHERE read_at IS NULL），重复调用第二次影响 0 行，不需要限。
 const (
 	// messageSendBurst 是总体桶容量 = 一次突发能连发的条数，也是每分钟的回满量。
-	messageSendBurst = 20
+	messageSendBurst = 180
 	// messageSendWindow 是总体桶回满一个空桶的时间。
 	messageSendWindow = time.Minute
 	// messageStrangerBurst 是"陌生人新会话"桶容量 = 每小时最多向几个没有既有会话的人发起会话。

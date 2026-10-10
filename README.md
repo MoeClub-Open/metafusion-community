@@ -390,3 +390,5 @@ COMMUNITY_TEST_DSN='postgres://user:pass@127.0.0.1:5432/metafusion_community_tes
 - 切流记录：2026-09-14 开发实例完成从主仓单体到本服务的迁移；该日期只说明迁移动作，不是当前线上状态。当前接口归属以主仓库 [子系统拆分与迁移基准](https://github.com/MoeclubM/MetaFusion/blob/main/docs/architecture/service-split-migration.md) 与其生效矩阵 `deploy/nginx.conf` 为准；已退役的单体实现和遗留数据搬运说明仅适用于切流窗口。
 - 实体合并（`entity.merged`）后的引用改写：旧实现由单体订阅 outbox 完成；本服务的增量消费
   在 P4 与跨服务事件通道一起确定，当前不消费事件。
+
+云端 MCP 通过现有 API 操作本服务；信息获取由 Agent 决定。业务读写默认各 180 RPM，验证 admin 组免业务限流，PAT 内省包含现时 groups，业务权限仍按 permissions 检查。连接池默认 32/16；计数为每进程固定窗口。
