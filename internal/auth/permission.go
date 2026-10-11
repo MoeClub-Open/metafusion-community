@@ -32,6 +32,8 @@ const (
 	// 举报码管"这条举报怎么处置"（受理/驳回/记录处置结论）。两者不互相蕴含：
 	// 只有 community_admin 与 community_moderator 同时持有两个码（见账号服务的系统组播种）。
 	PermissionReportReview = "community.report.review"
+	// PermissionRateLimitsManage configures this service's API and messaging budgets.
+	PermissionRateLimitsManage = "community.rate_limits.manage"
 
 	// permissionWildcard 是账号服务给的「全部权限」码（admin 组）。
 	permissionWildcard = "*"
@@ -44,6 +46,7 @@ var communityPermissionCodes = []string{
 	PermissionTopicPin,
 	PermissionBoardManage,
 	PermissionReportReview,
+	PermissionRateLimitsManage,
 }
 
 // HasPermission 只看权限码；* 通配即全权，空集合不授予任何权限。

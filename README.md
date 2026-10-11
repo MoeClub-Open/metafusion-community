@@ -51,6 +51,7 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 | PUT | `/api/messages/with/{id}/read` | 登录 | 标记"对方发给我"的未读为已读 → `{"marked":N}`（幂等：重复调用为 0，且不刷新回执时间） |
 | GET | `/api/messages/settings` | 登录 | 我的私信收件设置 → `{"accept_from_strangers":bool}`（没有设置行 = 默认 true） |
 | PUT | `/api/messages/settings` | 登录 | 改我的私信收件设置（`{"accept_from_strangers":bool}`，字段缺失 400 `invalid_payload`）→ 同形状回读；进审计（`message.settings_updated`） |
+| GET / PUT | `/api/community/admin/rate-limits` | `community.rate_limits.manage` | 读取 / 修改互动服务 API 与私信额度；独立策略、乐观锁与错误码见「运行时限流策略」 |
 
 论坛主题与"实体短评"共用同一张 `community.topics`，靠板块区分语义：评论锚定实体、无独立标题、不进信息流；
 主题有标题、可独立成文、进信息流（`show_in_feed`）。
@@ -145,28 +146,52 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
     且**不落库**。"对方拒收"必须是发送方能看到的事实，不能表现成"发出去了但其实没到"。
   - **设置只写自己的**：`PUT` 的 `user_id` 恒为当前用户（请求里没有可以指向别人的输入）；
     改动进审计 `message.settings_updated`，changes 记 `accept_from_strangers` 的前后值。
-- **反骚扰：两档按账号限流**（`internal/handler/message_limit.go`）。网关按 IP 限流（30r/s）拦不住"一个账号刷量"，
-  所以发信另有两档，**两档是交集**（谁先耗尽谁拦），超限都是 429 `rate_limited` + `Retry-After`：
+- **反骚扰：两档按账号限流**。发信在全服务 API 预算之外另有两档，**两档是交集**（谁先耗尽谁拦），
+  超限都是 429 `rate_limited` + `Retry-After`；下表为可调整的默认额度：
 
   | 档 | 计费对象 | 额度 | 审计 changes |
   | --- | --- | --- | --- |
-  | 总体发送频率 | 该账号的**全部**发信 | 20 条 / 分钟 | `limit=sender_window` |
+  | 总体发送频率 | 该账号的**全部**发信 | 180 条 / 分钟 | `limit=sender_window` |
   | 陌生人新会话 | 只对"向**没有既有会话**的人发起新会话" | 5 个 / 小时 | `limit=new_stranger` |
 
   第二档存在的前提就是上面的"默认接收"：没有它，任何人都能给任意 uuid 刷信。**已有会话的一方不扣这一档**，
   所以"继续聊"永远不会被它拦住（只会受第一档约束）。
   **拉黑 / 举报 / 静默期仍不存在**（举报与申诉由 F3 那批承担；拉黑需要收件人侧的名单，本服务还没有）。
 
-### 扩容前置项：两档限流在**单实例**假设上
+### 运行时限流策略
 
-限流桶在**进程内存**里：多副本部署时每个副本各有一份，实际放行量 = 额度 × 副本数。
-这项评估基于曾核对的单副本部署假设，并不证明当前线上副本数（本轮未访问实例/compose runtime）；若实际采用多副本，每个进程各自计桶，服务可放行总量可能随副本数扩大（当时估算为 20 条/分钟 × N、5 个新会话/小时 × N）——
-这是隐性安全退化，不是性能优化。因此：
+本服务的全部 `/api` 读写共用一个默认 **180 次 / 分钟**预算：已验证账号按用户 ID，匿名按 IP。
+这是**每主体、每服务**的预算，目录与互动服务分别计数。生产策略和计数存本服务自有 PostgreSQL（迁移 `000015`），
+多副本与进程重启共享计数，不访问目录数据库。API 使用数据库时钟的固定分钟窗口；私信两档使用匀速回满的令牌桶。
+闲置 API 窗口保留至少两分钟、私信桶保留至少两个回满窗口，过期计数按索引分批惰性清理。
+数据库策略或计数不可用时返回 `503 rate_limit_unavailable`，不绕过限流。
 
-- **扩到多副本之前必须先解决这一条**（三选一，并写明选了哪个）：把桶换到共享存储（本服务目前不接 Redis，
-  需要先接）；或在网关/编排层把"按账号限流"挪到唯一入口上；或按副本数折算额度并写明折算口径。
-- 同一原因，本服务目前**没有**别的跨实例共享的可变状态（审计各写各的库、会话数据在 PG），
-  所以除了限流额度之外没有第二处"多副本会失真"的量；这条前置项是唯一的一处。
+主站 `/admin` 的限流页统一选择服务，社区管理端不另维护一套策略页。
+`GET /api/community/admin/rate-limits` 返回：
+
+```json
+{
+  "etag": "community-rate-limits-v1",
+  "policy": {
+    "default_per_minute": 180,
+    "groups": {"admin": {"unlimited": true}}
+  },
+  "messages": {"send_per_minute": 180, "stranger_per_hour": 5, "admin_unlimited": true},
+  "updated_at": "2026-10-11T00:00:00Z"
+}
+```
+
+`policy` 沿用目录策略形状：`default_per_minute`、`default_unlimited`、`groups` 与 `accounts`，
+规则为 `{per_minute, unlimited}`。账号覆盖先按用户 ID、再按用户名命中；没有账号规则时，命中的组取最宽松额度，
+匿名只用保留组 `anonymous`。默认额度缺省或为 0 时回落 180；`unlimited:true` 跳过计数及 `X-RateLimit-*` 响应头。
+默认管理员无限来自显式 `groups.admin` 种子，改成有限额或移除该规则即可收回；第三方 OAuth 不继承管理员组豁免。
+私信的 `messages.admin_unlimited` 默认 true，关闭后已验证管理员也受两档私信额度限制；两种管理员豁免分别配置。
+`send_per_minute` 与 `stranger_per_hour` 必须为 1..1000000，保存不会重置现有桶。
+
+`PUT` 需权限 `community.rate_limits.manage`，body 为 `{expected_etag, policy, messages, edit_note?}`。
+完整传入 `messages`，避免只编辑 API 策略时意外覆盖反骚扰额度；运行配置不要求元数据证据 `sources`。
+成功返回新配置并记录 `rate_limits.updated` 审计；非法额度 / 缺少策略字段为 `400 invalid_rate_limit`，
+旧或缺失 `expected_etag` 为 `409 conflict`，未登录 / 缺权限为 401 / 403，第三方治理请求仍 403。
 
 ### 帖子治理列表
 
@@ -391,4 +416,4 @@ COMMUNITY_TEST_DSN='postgres://user:pass@127.0.0.1:5432/metafusion_community_tes
 - 实体合并（`entity.merged`）后的引用改写：旧实现由单体订阅 outbox 完成；本服务的增量消费
   在 P4 与跨服务事件通道一起确定，当前不消费事件。
 
-云端 MCP 通过现有 API 操作本服务；信息获取由 Agent 决定。业务读写默认各 180 RPM，验证 admin 组免业务限流，PAT 内省包含现时 groups，业务权限仍按 permissions 检查。连接池默认 32/16；计数为每进程固定窗口。
+云端 MCP 通过现有 API 操作本服务；信息获取由 Agent 决定。业务读写合计默认 180 RPM，管理员默认无限且可配置，PAT 内省包含现时 groups，业务权限仍按 permissions 检查。连接池默认 32/16；生产计数为本服务 PostgreSQL 共享窗口。

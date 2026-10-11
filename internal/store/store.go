@@ -3,11 +3,15 @@ package store
 import (
 	"context"
 	"database/sql"
+	"sync/atomic"
 
 	"github.com/MoeclubM/metafusion-community/internal/migrator"
 )
 
-type Store struct{ db *sql.DB }
+type Store struct {
+	db                 *sql.DB
+	rateLimitCleanupAt atomic.Int64
+}
 
 func Open(ctx context.Context, dsn string) (*Store, error) {
 	db, err := sql.Open("postgres", dsn)

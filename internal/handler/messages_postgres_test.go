@@ -674,7 +674,7 @@ func TestMessageStrangerSwitchAgainstPostgres(t *testing.T) {
 	}
 
 	// 8) 陌生人新会话额度：erin 连开 5 个新会话放行，第 6 个 429 rate_limited（额度是"新会话"，
-	//    不是"发信"——所以这里每个收件人都是全新的 uuid，且这一档与总体 20/分钟的桶互不串账）。
+	//    不是"发信"——所以这里每个收件人都是全新的 uuid，且这一档与总体 180/分钟的桶互不串账）。
 	for i := 0; i < messageStrangerBurst; i++ {
 		peer := uuid.NewString()
 		t.Cleanup(func() { cleanupDirectMessages(ctx, db, peer) })
@@ -703,7 +703,7 @@ func TestMessageStrangerSwitchAgainstPostgres(t *testing.T) {
 	}
 
 	// 9) 陌生人额度只对"新会话"计费：erin 已经与前面 5 个人聊过，继续发不扣这一档，
-	//    因此即使额度已耗尽，她**继续**跟那 5 个人中的任意一个也能发出去（只受总体 20/分钟约束）。
+	//    因此即使额度已耗尽，她**继续**跟那 5 个人中的任意一个也能发出去（只受总体 180/分钟约束）。
 	var knownPeer string
 	if err := db.QueryRowContext(ctx, `SELECT recipient_id::text FROM community.direct_messages
 		WHERE sender_id=$1::uuid ORDER BY created_at LIMIT 1`, erin).Scan(&knownPeer); err != nil {

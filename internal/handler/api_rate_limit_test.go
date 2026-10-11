@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestAPIRateLimitStopsWritesAndSeparatesReads(t *testing.T) {
+func TestAPIRateLimitSharesReadAndWriteBudget(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	r.Use(apiRateLimiter())
@@ -29,7 +29,7 @@ func TestAPIRateLimitStopsWritesAndSeparatesReads(t *testing.T) {
 	}
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, httptest.NewRequest("GET", "/api/test", nil))
-	if w.Code != 200 {
-		t.Fatal("read budget shared with writes")
+	if w.Code != 429 {
+		t.Fatal("read request did not share the exhausted write budget")
 	}
 }

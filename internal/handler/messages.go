@@ -92,15 +92,12 @@ func (h *Handler) registerMessages(api *gin.RouterGroup) {
 		// 频率限制放在正文校验之前：超限的调用方需要知道的是"慢一点"，
 		// 而不是"这条正文格式不对"；先校验会让刷量请求拿到逐条不同的错误码。
 		// 审计行用 changes.limit 区分是哪一档拦的（机器码统一为 rate_limited）。
-		admin := false
-		if !p.IsThirdParty {
-			for _, group := range p.Groups {
-				if group == "admin" {
-					admin = true
-				}
-			}
+		allowed, retryAfter, err := h.allowMessage(c, p, false)
+		if err != nil {
+			fail(c, 503, "rate_limit_unavailable")
+			return
 		}
-		if ok, retryAfter := h.messages.allow(p.ID); !admin && !ok {
+		if !allowed {
 			audit.Describe(c, audit.Detail{TargetType: "user", TargetID: peerID, Changes: map[string]any{
 				"limit": "sender_window",
 			}})
@@ -135,9 +132,14 @@ func (h *Handler) registerMessages(api *gin.RouterGroup) {
 			fail(c, http.StatusForbidden, "recipient_not_accepting_messages")
 			return
 		}
-		if !policy.HasConversation && !admin {
+		if !policy.HasConversation {
 			// 陌生人新会话额度（第 2 档）：已有会话的一方不扣它，因此"继续聊"永远不会被它拦住。
-			if ok, retryAfter := h.messages.allowStranger(p.ID); !ok {
+			allowed, retryAfter, err := h.allowMessage(c, p, true)
+			if err != nil {
+				fail(c, 503, "rate_limit_unavailable")
+				return
+			}
+			if !allowed {
 				audit.Describe(c, audit.Detail{TargetType: "user", TargetID: peerID, Changes: map[string]any{
 					"limit": "new_stranger",
 				}})

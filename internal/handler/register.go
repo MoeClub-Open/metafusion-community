@@ -63,7 +63,8 @@ func (h *Handler) Register(r *gin.Engine) {
 	// 顺序若被改回"身份在前"，TestAuditLogForRejectedCredentialsAgainstPostgres 会失败。
 	api.Use(h.auditMiddleware())
 	api.Use(h.verifier.Middleware())
-	api.Use(apiRateLimiter())
+	api.Use(apiRateLimiter(h.store))
+	h.registerRateLimits(api)
 	h.registerForum(api)
 	h.registerCommunity(api)
 	h.registerFavorites(api)

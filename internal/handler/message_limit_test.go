@@ -73,7 +73,7 @@ func TestMessageLimiter(t *testing.T) {
 }
 
 // 陌生人新会话额度（第 2 档）是独立的一档：容量更小、窗口更长，且**不消耗总体桶的语义**
-// （两档各自独立计费，谁先耗尽谁拦），与"总体 20/分钟"是交集关系。
+// （两档各自独立计费，谁先耗尽谁拦），与默认总体 180/分钟是交集关系。
 func TestMessageLimiterStrangerQuota(t *testing.T) {
 	now := time.Unix(1700000000, 0)
 	l := newMessageLimiter()

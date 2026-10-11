@@ -152,7 +152,9 @@ func TestOutboxRedeliveryAfterResponseLostKeepsEventID(t *testing.T) {
 			t.Fatalf("首次投递事件必须为原事件: %+v", first)
 		}
 	}
-	if _, err := h.db.DB().ExecContext(ctx, "UPDATE community.notification_outbox SET next_retry_at=now() WHERE status='pending'"); err != nil {
+	// Explicitly make the item due: the PostgreSQL host and test process may have
+	// slightly different clocks, so equality to database now() is not portable.
+	if _, err := h.db.DB().ExecContext(ctx, "UPDATE community.notification_outbox SET next_retry_at=now()-interval '1 minute' WHERE status='pending'"); err != nil {
 		t.Fatalf("拨到期: %v", err)
 	}
 	h.failNext.Store(0)
