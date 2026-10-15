@@ -26,7 +26,7 @@ type Entity struct {
 	ID         string `json:"id"`
 	Kind       string `json:"kind"`
 	Title      string `json:"title"`
-	Status     string `json:"state"`
+	State      string `json:"state"`
 	RedirectID string `json:"redirect_id"`
 }
 
@@ -396,7 +396,7 @@ deliver:
 	return out, firstErr
 }
 
-// Related 取与实体相邻的、kind 命中白名单且已发布的实体（用于"所属集合"）。
+// Related 取与实体相邻的、kind 命中白名单且正常的实体（用于"所属集合"）。
 // 关系与端点实体一次取回，避免逐条请求。
 // (nil, nil) = 目录明确回答"没有邻居"；err != nil = 取不到（调用方必须 503，不能回空 items）。
 func (c *Client) Related(ctx context.Context, entityID string, kinds []string) ([]Entity, error) {
@@ -447,7 +447,7 @@ func (c *Client) Related(ctx context.Context, entityID string, kinds []string) (
 			if len(kinds) > 0 && !contains(kinds, e.Kind) {
 				continue
 			}
-			if e.Status != "active" {
+			if e.State != "active" {
 				continue
 			}
 			out = append(out, e)

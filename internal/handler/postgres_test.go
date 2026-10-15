@@ -46,7 +46,7 @@ func TestForumEndpointsAgainstPostgres(t *testing.T) {
 	}
 
 	// 目录桩：实体一律可见，标题固定，用来验证"跨服务取标题"这条链路。
-	entityID := uuid.NewString()
+	entityID, collectionID := uuid.NewString(), uuid.NewString()
 	catalogStub := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet && strings.HasSuffix(r.URL.Path, "/identity") {
 			// X01 身份契约：按路径里的请求 ID 原样回答存活身份（canonical=请求 ID，无别名），
@@ -63,7 +63,7 @@ func TestForumEndpointsAgainstPostgres(t *testing.T) {
 			return
 		}
 		if strings.HasSuffix(r.URL.Path, "/relations") {
-			_ = json.NewEncoder(w).Encode(map[string]any{"items": []any{}, "entities": map[string]any{}})
+			_ = json.NewEncoder(w).Encode(map[string]any{"items": []any{map[string]any{"source_id": collectionID, "target_id": entityID}}, "entities": map[string]any{collectionID: map[string]any{"id": collectionID, "kind": "collection", "title": "Active collection", "state": "active"}}})
 			return
 		}
 		_ = json.NewEncoder(w).Encode(map[string]any{"id": entityID, "kind": "work", "title": "测试作品", "state": "active"})
@@ -233,6 +233,12 @@ func TestForumEndpointsAgainstPostgres(t *testing.T) {
 	if err = db.QueryRowContext(ctx, "SELECT count(*) FROM community.posts WHERE topic_id=$1", topicID).Scan(&left); err != nil || left != 0 {
 		t.Fatalf("删主题后回复未级联删除: left=%d err=%v", left, err)
 	}
+	collectionResponse, collectionPayload := call(http.MethodGet, "/api/community/entities/"+entityID+"/collections", "", "")
+	collectionItems, ok := collectionPayload["items"].([]any)
+	if collectionResponse.Code != http.StatusOK || !ok || len(collectionItems) != 1 || collectionItems[0].(map[string]any)["id"] != collectionID {
+		t.Fatalf("active related collection was lost: HTTP %d %v", collectionResponse.Code, collectionPayload)
+	}
+
 	// 清理收藏，便于重复运行。
 	_, _ = db.ExecContext(ctx, "DELETE FROM community.favorites WHERE user_id=$1", "11111111-1111-1111-1111-111111111111")
 }
@@ -240,4 +246,5 @@ func TestForumEndpointsAgainstPostgres(t *testing.T) {
 func mustJSON(v any) string {
 	b, _ := json.Marshal(v)
 	return string(b)
+
 }

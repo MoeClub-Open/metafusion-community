@@ -334,7 +334,7 @@ func (h *Handler) registerCommunity(api *gin.RouterGroup) {
 		}
 		items := []map[string]any{}
 		for _, col := range cols {
-			if col.Status != "published" {
+			if col.State != "active" {
 				continue
 			}
 			items = append(items, map[string]any{"id": col.ID, "title": col.Title})
