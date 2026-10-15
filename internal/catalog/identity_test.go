@@ -26,7 +26,7 @@ func identityPayload(canonical string, aliases ...string) string {
 	raw, _ := json.Marshal(map[string]any{
 		"canonical_id": canonical,
 		"aliases":      aliases,
-		"entity":       map[string]any{"id": canonical, "kind": "work", "title": "D", "status": "published"},
+		"entity":       map[string]any{"id": canonical, "kind": "work", "title": "D", "state": "active"},
 		"complete":     true,
 	})
 	return string(raw)
@@ -176,9 +176,9 @@ func legacyStub() *httptest.Server {
 		case "/api/catalog/entities/" + txAliasA:
 			w.WriteHeader(http.StatusNotFound)
 		case "/api/catalog/entities/" + txAliasA + "/resolve":
-			_, _ = w.Write([]byte(`{"id":"` + txAliasD + `","kind":"work","title":"D","status":"published"}`))
+			_, _ = w.Write([]byte(`{"id":"` + txAliasD + `","kind":"work","title":"D","state":"active"}`))
 		case "/api/catalog/entities/" + txAliasD:
-			_, _ = w.Write([]byte(`{"id":"` + txAliasD + `","kind":"work","title":"D","status":"published"}`))
+			_, _ = w.Write([]byte(`{"id":"` + txAliasD + `","kind":"work","title":"D","state":"active"}`))
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}

@@ -17,9 +17,9 @@ func TestResolveCanonicalFollowsMerge(t *testing.T) {
 		case "/api/catalog/entities/" + oldID:
 			w.WriteHeader(http.StatusNotFound)
 		case "/api/catalog/entities/" + oldID + "/resolve":
-			_, _ = w.Write([]byte(`{"id":"` + newID + `","kind":"work","title":"B","status":"published"}`))
+			_, _ = w.Write([]byte(`{"id":"` + newID + `","kind":"work","title":"B","state":"active"}`))
 		case "/api/catalog/entities/" + newID:
-			_, _ = w.Write([]byte(`{"id":"` + newID + `","kind":"work","title":"B","status":"published"}`))
+			_, _ = w.Write([]byte(`{"id":"` + newID + `","kind":"work","title":"B","state":"active"}`))
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
@@ -72,9 +72,9 @@ func TestResolveManyMapsToCanonical(t *testing.T) {
 		case "/api/catalog/entities/" + oldID:
 			w.WriteHeader(http.StatusNotFound)
 		case "/api/catalog/entities/" + oldID + "/resolve":
-			_, _ = w.Write([]byte(`{"id":"` + newID + `","kind":"work","title":"B","status":"published"}`))
+			_, _ = w.Write([]byte(`{"id":"` + newID + `","kind":"work","title":"B","state":"active"}`))
 		case "/api/catalog/entities/" + newID:
-			_, _ = w.Write([]byte(`{"id":"` + newID + `","kind":"work","title":"B","status":"published"}`))
+			_, _ = w.Write([]byte(`{"id":"` + newID + `","kind":"work","title":"B","state":"active"}`))
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}

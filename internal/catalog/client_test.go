@@ -55,7 +55,7 @@ func TestLookupRawFollowsMergedIdentity(t *testing.T) {
 			w.WriteHeader(http.StatusNotFound) // 合并后旧 id 不再可见
 		case "/api/catalog/entities/" + oldID + "/resolve":
 			resolved = true
-			_, _ = w.Write([]byte(`{"id":"` + newID + `","kind":"work","title":"存活身份","status":"published"}`))
+			_, _ = w.Write([]byte(`{"id":"` + newID + `","kind":"work","title":"存活身份","state":"active"}`))
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
@@ -158,7 +158,7 @@ func TestLookupManyStopsWhenContextDone(t *testing.T) {
 	var calls int32
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		atomic.AddInt32(&calls, 1)
-		_, _ = w.Write([]byte(`{"id":"x","kind":"work","title":"t","status":"published"}`))
+		_, _ = w.Write([]byte(`{"id":"x","kind":"work","title":"t","state":"active"}`))
 	}))
 	defer srv.Close()
 	c := New(srv.URL, 2*time.Second)
