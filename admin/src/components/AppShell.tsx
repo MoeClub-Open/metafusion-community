@@ -12,6 +12,7 @@ import { TopicsPanel } from "./TopicsPanel";
 import { PostsPanel } from "./PostsPanel";
 import { ReportsPanel } from "./ReportsPanel";
 import { Button, Card, Notice } from "./ui";
+import { connectAdminWorkspace, prepareAdminNavigation, isAdminWorkspaceEmbedded, announceAdminNavigation, requestAdminWorkspaceLogin } from "@/lib/adminWorkspace";
 import { ThemeModeSwitcher } from "./ThemeModeSwitcher";
 
 type TabId = "boards" | "topics" | "posts" | "reports";
@@ -28,13 +29,20 @@ function readHash(): string {
 }
 
 export function AppShell() {
-  const { t, locale } = useI18n();
+  const { t, locale, setLocale } = useI18n();
   const { status, user, error, reload, can } = useSession();
+  const [embedded, setEmbedded] = useState(false);
+  useEffect(() => {
+    const disconnect = connectAdminWorkspace(setLocale);
+    setEmbedded(disconnect !== null);
+    return disconnect ?? undefined;
+  }, [setLocale]);
   const [tab, setTab] = useState<TabId | "">("");
   const [reloadKey, setReloadKey] = useState(0);
   const [signInHref, setSignInHref] = useState<string>(LOGIN_PATH);
 
   useEffect(() => { setSignInHref(signInHrefOnce()); }, []);
+  useEffect(() => { if (status === "anonymous") requestAdminWorkspaceLogin(); }, [status]);
   const allowed = useMemo(() => {
     const map: Record<string, boolean> = {};
     for (const item of TABS) map[item.id] = item.codes.some((code) => can(code));
@@ -55,7 +63,12 @@ export function AppShell() {
 
   const selectTab = useCallback((next: TabId) => {
     setTab(next);
-    if (typeof window !== "undefined" && window.location.hash !== `#${next}`) window.history.pushState(null, "", `#${next}`);
+    if (typeof window !== "undefined" && window.location.hash !== `#${next}`) {
+      prepareAdminNavigation(window.location.pathname + window.location.search + `#${next}`);
+      if (isAdminWorkspaceEmbedded()) window.history.replaceState(window.history.state, "", `#${next}`);
+      else window.history.pushState(window.history.state, "", `#${next}`);
+    }
+    announceAdminNavigation();
   }, []);
   const refreshAll = useCallback(() => { reload(); setReloadKey((n) => n + 1); }, [reload]);
   const visibleTabs = TABS.filter((item) => allowed[item.id]);
@@ -68,7 +81,7 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-screen flex-col bg-surface text-ink">
-      <header className="sticky top-0 z-30 border-b border-line bg-panel/95 backdrop-blur">
+      <header hidden={embedded} className="sticky top-0 z-30 border-b border-line bg-panel/95 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-[80rem] items-center justify-between gap-2 px-4 sm:px-6">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <a href="/admin" aria-label={t("admin.backToHub")} title={t("admin.backToHub")} className="inline-flex h-11 w-11 sm:w-auto shrink-0 items-center justify-center gap-1 text-xs text-muted hover:text-ink"><span aria-hidden="true">←</span><span className="hidden sm:inline">{t("admin.backToHub")}</span></a>
@@ -92,7 +105,7 @@ export function AppShell() {
                 {visibleTabs.map((item) => <option key={item.id} value={item.id}>{t(item.labelKey)}</option>)}
               </select>
             </div>
-            <nav aria-label={t("admin.navLabel")} className="sticky top-24 hidden rounded-xl border border-line bg-surface p-2 lg:block">
+            <nav aria-label={t("admin.navLabel")} className={`sticky ${embedded ? "top-6" : "top-24"} hidden rounded-xl border border-line bg-surface p-2 lg:block`}>
               {visibleTabs.map((item) => (
                 <button key={item.id} type="button" aria-current={tab === item.id ? "page" : undefined} onClick={() => selectTab(item.id)} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${tab === item.id ? "bg-accent/15 font-semibold text-ink" : "text-muted hover:bg-accent/10 hover:text-ink"}`}>
                   {t(item.labelKey)}

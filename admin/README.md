@@ -10,6 +10,21 @@ MetaFusion 互动服务（`metafusion-community`）自带的运营后台：**板
 | 健康端点 | `/admin/community/api/health`（存活语义，见下） |
 | 技术栈 | Next.js 14（App Router）· React 18 · TypeScript · Tailwind；与主仓库 `frontend/` 同栈 |
 
+
+## 管理中心工作区
+
+站点统一入口为 `/admin`，顶栏切换到本服务可用 `/admin?workspace=community`，
+具体页面由 `path` 参数保存，刷新和复制地址均可恢复。主前端使用同源 iframe 承载本应用，
+切换时保留已经打开的工作区；直接访问 `/admin/community/` 仍可独立使用。
+
+`src/lib/adminWorkspace.ts` 实现 `metafusion.admin.v1` 协议：仅在同源 `/admin` 父页面、
+且窗口名为 `metafusion-admin-community` 时启用。嵌入时收起自己的顶栏，接收语言和主题偏好，
+回报页面导航与登录失效；消息必须同时核对 origin、source、channel 和 workspace。
+会话、权限、业务请求与服务端授权仍由本应用处理，不从父页面接收令牌或权限。
+跨出本应用的普通链接在顶层打开；失去登录态时由管理中心跳登录，并保留当前工作区回跳地址。
+
+主仓与本应用需同时具备 v1 协议；旧版应用不响应时，管理中心显示重试和独立打开入口。
+
 ## 页面与权限码
 
 权限码一律**以账号服务返回的 `permissions` 为准**（`GET /api/auth/me` 的 claims 投影），
