@@ -7,9 +7,7 @@ package auth
 // （metafusion-auth/internal/store/access.go 的 PermissionCatalog 与 seed_groups.go 播种的
 // 系统组）：两边都只读令牌、谁也不查对方的库，唯一需要对齐的就是码的拼写。
 //
-// 收敛计划：这些码的单一来源将是协议层仓库 metafusion-sdk（常量 + 生成物），本服务改为依赖它，
-// 不再靠"逐字抄写 + 代码评审"对齐（见 docs/architecture/service-decoupling-roadmap.md §3）。
-// 本批次只登记这条路径，不引入依赖：码表仍由本文件声明，且必须与账号服务逐字一致。
+// 本服务在此声明所需权限码；改动时以账号服务的 PermissionCatalog 为准，逐字核对。
 // 组码（community_moderator 等）与角色都不参与判定——散落的角色比较正是
 // 「后台分配了权限组、本服务却不认」的成因。
 
