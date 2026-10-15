@@ -75,7 +75,7 @@ func TestPaginationWindowsAgainstPostgres(t *testing.T) {
 	catalogStub := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := strings.TrimSuffix(r.URL.Path, "/resolve")
 		id := path[strings.LastIndex(path, "/")+1:]
-		_ = json.NewEncoder(w).Encode(map[string]any{"id": id, "kind": "work", "title": "探针作品", "status": "published"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"id": id, "kind": "work", "title": "探针作品", "state": "active"})
 	}))
 	defer catalogStub.Close()
 

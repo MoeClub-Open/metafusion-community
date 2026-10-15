@@ -57,7 +57,7 @@ func TestModerationEndpointsHonourPermissionCodes(t *testing.T) {
 				"canonical_id": id,
 				"aliases":      []any{},
 				"complete":     true,
-				"entity":       map[string]any{"id": id, "kind": "work", "title": "测试作品", "status": "published"},
+				"entity":       map[string]any{"id": id, "kind": "work", "title": "测试作品", "state": "active"},
 			})
 			return
 		}
@@ -65,7 +65,7 @@ func TestModerationEndpointsHonourPermissionCodes(t *testing.T) {
 			_ = json.NewEncoder(w).Encode(map[string]any{"items": []any{}, "entities": map[string]any{}})
 			return
 		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"id": entityID, "kind": "work", "title": "测试作品", "status": "published"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"id": entityID, "kind": "work", "title": "测试作品", "state": "active"})
 	}))
 	defer catalogStub.Close()
 

@@ -118,11 +118,11 @@ func newServiceHarness(t *testing.T) *serviceHarness {
 				"canonical_id": id,
 				"aliases":      []any{},
 				"complete":     true,
-				"entity":       map[string]any{"id": id, "kind": "work", "title": "t", "status": "published"},
+				"entity":       map[string]any{"id": id, "kind": "work", "title": "t", "state": "active"},
 			})
 			return
 		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"id": uuid.NewString(), "kind": "work", "title": "t", "status": "published"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"id": uuid.NewString(), "kind": "work", "title": "t", "state": "active"})
 	}))
 	t.Cleanup(stub.Close)
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
