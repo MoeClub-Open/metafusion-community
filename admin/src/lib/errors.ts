@@ -38,6 +38,8 @@ const CODE_KEYS: Record<string, string> = {
   rate_limited: "admin.err.rateLimited",
   invalid_reason: "admin.err.invalidReason",
   invalid_target_type: "admin.err.invalidTargetType",
+  invalid_owner_id: "admin.err.invalidOwnerID",
+  invalid_target_id: "admin.err.invalidTargetID",
   report_not_disposed: "admin.err.reportNotDisposed",
   duplicate_appeal: "admin.err.duplicateAppeal",
   invalid_report_state: "admin.err.invalidReportState",

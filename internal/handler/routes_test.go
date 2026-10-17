@@ -21,10 +21,12 @@ import (
 // 私信与用户互动统计。它们不是切流契约的一部分，但同样要进这份清单：
 // 路由是"前端调得到"的唯一保证，漏登记就会变成线上 404。
 var frozenRoutes = []string{
+	"DELETE /api/community/admin/favorites",
 	"DELETE /api/community/posts/:id",
 	"DELETE /api/community/topics/:id",
 	"DELETE /api/community/topics/:id/posts/:postId",
 	"GET /api/community/admin/appeals",
+	"GET /api/community/admin/favorites",
 	"GET /api/community/admin/notifications/outbox",
 	"GET /api/community/admin/rate-limits",
 	"GET /api/community/admin/reports",

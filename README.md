@@ -43,6 +43,8 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 | GET | `/api/favorites/status` | 匿名 | 批量查询收藏状态（未登录返回空集合） |
 | GET | `/api/favorites/mine` | 登录 | 我的收藏（分页，目标按请求者可见性过滤） |
 | GET | `/api/users/{id}/favorites` | 匿名 | 指定用户的收藏列表（公开读，目标按可见性过滤） |
+| GET | `/api/community/admin/favorites` | `community.report.review` | 全用户原始收藏记录：`page`/`page_size`（默认 20、上限 100），可按 `owner_id`、`target_type`、`target_id` 精确筛选；返回 `{"items":[{"owner_id":"…","target_type":"work","target_id":"…","created_at":"…"}],"total":N}`，不依赖目录可见性或别名解析 |
+| DELETE | `/api/community/admin/favorites` | `community.report.review` | 三个 query 参数 `owner_id`、`target_type`、`target_id` 全部必填，只删除精确复合键；成功 204、不存在 404 `not_found`；非法参数分别为 400 `invalid_owner_id` / `invalid_target_type` / `invalid_target_id` |
 | GET | `/api/users/{id}/stats` | 匿名 | 用户互动统计（主题 / 楼中回复 / 收藏），`{"stats":{…}}`；口径见「用户互动统计」 |
 | GET | `/api/messages/with/{id}` | 登录 | 与某人的私信会话（`page`/`page_size`，缺省 20、上限 100，按时间**倒序**）；`{"items":[{id,sender_id,recipient_id,body,created_at}],"total":N}` |
 | POST | `/api/messages/with/{id}` | 登录 | 发私信（`{"body":"…"}`；裁剪两侧空白后必须非空、不超过 4000 **字符**，否则 400 `invalid_body`；给自己发 400 `invalid_recipient`；对方不收陌生人私信 403 `recipient_not_accepting_messages`；超过总体频率或陌生人新会话额度 429 `rate_limited`）→ `{"message":{…}}` |
@@ -251,7 +253,7 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 
 ## 审计留痕（写入侧）
 
-本服务的**全部 11 条写路由**都会往跨服务共用的 `audit.audit_log` 写一行审计（谁、什么时候、
+本服务的**全部写路由**都会往跨服务共用的 `audit.audit_log` 写一行审计（谁、什么时候、
 对什么、做了什么、结果如何）。契约是主仓库 [docs/architecture/audit-log.md](https://github.com/MoeclubM/MetaFusion/blob/main/docs/architecture/audit-log.md)：
 表结构、动作码命名、写入语义、脱敏规则四个服务共用（各仓各存一份同源代码，没有共享 module）。
 
@@ -266,6 +268,7 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 | DELETE | `/api/community/topics/{id}/posts/{postId}` | `post.deleted` | `post` |
 | DELETE | `/api/community/posts/{id}` | `comment.deleted` | `comment` |
 | POST | `/api/favorites/toggle` | `favorite.toggled` | `entity` = 被收藏的实体 |
+| DELETE | `/api/community/admin/favorites` | `favorite.deleted` | `favorite` = 原始目标 id；`changes` 含 `owner_id`、`target_type`、`target_id`，成功删除时含原记录的 `created_at` |
 | POST | `/api/messages/with/{id}` | `message.sent` | `user` = 收件人 |
 | PUT | `/api/messages/with/{id}/read` | `message.read` | `user` = 会话另一端 |
 

@@ -24,6 +24,7 @@ import (
 //	DELETE /api/community/topics/:id/posts/:postId   post.deleted      删回复
 //	DELETE /api/community/posts/:id                  comment.deleted   删短评（仅评论板块）
 //	POST   /api/favorites/toggle                     favorite.toggled  收藏切换
+//	DELETE /api/community/admin/favorites            favorite.deleted  管理员删除精确收藏记录
 //	POST   /api/messages/with/:id                    message.sent      发私信
 //	PUT    /api/messages/with/:id/read                message.read      标记会话已读
 //	PUT    /api/messages/settings                     message.settings_updated 收件人侧的私信开关
@@ -83,6 +84,7 @@ var auditActions = map[string]string{
 	"DELETE /api/community/topics/:id/posts/:postId":       "post.deleted",
 	"DELETE /api/community/posts/:id":                      "comment.deleted",
 	"POST /api/favorites/toggle":                           "favorite.toggled",
+	"DELETE /api/community/admin/favorites":                "favorite.deleted",
 	"POST /api/messages/with/:id":                          "message.sent",
 	"PUT /api/messages/with/:id/read":                      "message.read",
 	"PUT /api/messages/settings":                           "message.settings_updated",

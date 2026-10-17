@@ -11,16 +11,20 @@ import { BoardsPanel } from "./BoardsPanel";
 import { TopicsPanel } from "./TopicsPanel";
 import { PostsPanel } from "./PostsPanel";
 import { ReportsPanel } from "./ReportsPanel";
+import { NotificationsOutboxPanel } from "./NotificationsOutboxPanel";
+import { FavoritesPanel } from "./FavoritesPanel";
 import { Button, Card, Notice } from "./ui";
 import { connectAdminWorkspace, prepareAdminNavigation, isAdminWorkspaceEmbedded, announceAdminNavigation, requestAdminWorkspaceLogin } from "@/lib/adminWorkspace";
 import { ThemeModeSwitcher } from "./ThemeModeSwitcher";
 
-type TabId = "boards" | "topics" | "posts" | "reports";
+type TabId = "boards" | "topics" | "posts" | "reports" | "notifications" | "favorites";
 const TABS: { id: TabId; labelKey: string; codes: string[] }[] = [
   { id: "reports", labelKey: "admin.tab.reports", codes: [COMMUNITY_REPORT_REVIEW] },
   { id: "topics", labelKey: "admin.tab.topics", codes: [COMMUNITY_TOPIC_PIN, COMMUNITY_POST_MODERATE] },
   { id: "posts", labelKey: "admin.tab.posts", codes: [COMMUNITY_POST_MODERATE] },
   { id: "boards", labelKey: "admin.tab.boards", codes: [COMMUNITY_BOARD_MANAGE] },
+  { id: "notifications", labelKey: "admin.tab.notifications", codes: [COMMUNITY_REPORT_REVIEW] },
+  { id: "favorites", labelKey: "admin.tab.favorites", codes: [COMMUNITY_REPORT_REVIEW] },
 ];
 
 function readHash(): string {
@@ -149,6 +153,8 @@ export function AppShell() {
           {status === "ready" && anyAllowed && tab === "topics" && allowed.topics ? <TopicsPanel reloadKey={reloadKey} /> : null}
           {status === "ready" && anyAllowed && tab === "posts" && allowed.posts ? <PostsPanel reloadKey={reloadKey} /> : null}
           {status === "ready" && anyAllowed && tab === "reports" && allowed.reports ? <ReportsPanel reloadKey={reloadKey} /> : null}
+          {status === "ready" && anyAllowed && tab === "notifications" && allowed.notifications ? <NotificationsOutboxPanel reloadKey={reloadKey} /> : null}
+          {status === "ready" && anyAllowed && tab === "favorites" && allowed.favorites ? <FavoritesPanel reloadKey={reloadKey} /> : null}
         </main>
       </div>
 

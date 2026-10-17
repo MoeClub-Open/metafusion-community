@@ -68,6 +68,7 @@ func (h *Handler) Register(r *gin.Engine) {
 	h.registerForum(api)
 	h.registerCommunity(api)
 	h.registerFavorites(api)
+	h.registerAdminFavorites(api)
 	h.registerMessages(api)
 	h.registerBoards(api)
 	h.registerStats(api)
