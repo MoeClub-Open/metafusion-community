@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/MoeclubM/metafusion-community/internal/account"
 	"github.com/MoeclubM/metafusion-community/internal/auth"
 	"github.com/MoeclubM/metafusion-community/internal/catalog"
 	"github.com/MoeclubM/metafusion-community/internal/config"
@@ -76,7 +77,7 @@ func main() {
 	pat := auth.NewPATIntrospector(cfg.AuthURL)
 	verifier.SetPAT(pat)
 	if cfg.AuthURL == "" {
-		log.Print("AUTH_URL is not configured: personal access tokens (mfp_ prefix) will be rejected with 503 auth_unavailable")
+		log.Print("AUTH_URL is not configured: personal access tokens and other users' favorites/statistics will return 503 auth_unavailable")
 	}
 
 	r := gin.New()
@@ -99,6 +100,7 @@ func main() {
 	})
 
 	h := handler.New(db, cat, verifier)
+	h.SetAccountClient(account.New(cfg.AuthURL))
 	h.Register(r)
 	// S4 常驻 worker：待投递表（community.notification_outbox）的自动领取与重试。
 	// worker 模式归本服务（同一进程一个 goroutine + 定时触发），不拆新服务、

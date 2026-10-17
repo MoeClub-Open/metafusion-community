@@ -23,7 +23,7 @@ import (
 
 // opsFixture 是运营写接口（置顶、板块配置）的夹具：真库 + 目录桩 + 可验签的 router。
 // 板块会被用例改写，因此每次从"清空后重新播种"的状态开始，避免用例互相依赖。
-func opsFixture(t *testing.T) (context.Context, *sql.DB, http.Handler, *rsa.PrivateKey, string) {
+func opsFixture(t *testing.T, configure ...func(*Handler)) (context.Context, *sql.DB, http.Handler, *rsa.PrivateKey, string) {
 	t.Helper()
 	dsn := testutil.DSN(t)
 	db := testutil.Database(t)
@@ -79,7 +79,11 @@ func opsFixture(t *testing.T) (context.Context, *sql.DB, http.Handler, *rsa.Priv
 	}
 	srv, kid := jwksServer(t, key)
 	router := gin.New()
-	New(s, catalog.New(catalogStub.URL, 2*time.Second), newVerifier(t, srv.URL)).Register(router)
+	h := New(s, catalog.New(catalogStub.URL, 2*time.Second), newVerifier(t, srv.URL))
+	for _, apply := range configure {
+		apply(h)
+	}
+	h.Register(router)
 	return ctx, db, router, key, kid
 }
 

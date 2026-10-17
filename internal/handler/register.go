@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/MoeclubM/metafusion-community/internal/account"
 	"github.com/MoeclubM/metafusion-community/internal/audit"
 	"github.com/MoeclubM/metafusion-community/internal/auth"
 	"github.com/MoeclubM/metafusion-community/internal/catalog"
@@ -23,6 +24,7 @@ type Handler struct {
 	// store 是新实现在用的自有 schema 访问层。
 	store    *store.Store
 	catalog  *catalog.Client
+	account  *account.Client
 	verifier *auth.Verifier
 	// audit 是写操作的审计写入器（注册表与接线见 audit.go）。db 为 nil 时它是 nil，
 	// 中间件退化为空操作。
@@ -40,6 +42,9 @@ func New(s *store.Store, cat *catalog.Client, verifier *auth.Verifier) *Handler 
 	}
 	return h
 }
+
+// SetAccountClient 注入账号资料读接口；收藏隐私只认账号服务中的权威偏好，不复制用户设置。
+func (h *Handler) SetAccountClient(client *account.Client) { h.account = client }
 
 // Close 排空审计队列并停掉后台 goroutine。**必须在 http.Server.Shutdown 之后调用**：
 // 关闭队列时仍在入队的请求会丢行（见 audit.Recorder.Close 的约定）。进程被 kill 时不必调，

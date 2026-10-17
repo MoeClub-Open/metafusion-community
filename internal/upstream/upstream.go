@@ -81,6 +81,8 @@ type Policy struct {
 	Jitter float64
 	// Idempotent 声明该请求可以安全重放（本项目里跨服务调用全是读语义）。
 	Idempotent bool
+	// DisableRedirects 用于必须命中指定服务端点的调用，防止重定向改变事实来源。
+	DisableRedirects bool
 
 	BreakerThreshold      int
 	BreakerOpenFor        time.Duration
@@ -329,9 +331,13 @@ func New(p Policy) *Client {
 	tr.ResponseHeaderTimeout = np.HeaderTimeout
 	tr.MaxIdleConnsPerHost = 8
 	tr.IdleConnTimeout = 60 * time.Second
+	hc := &http.Client{Transport: tr}
+	if np.DisableRedirects {
+		hc.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
+	}
 	return &Client{
 		p:     np,
-		hc:    &http.Client{Transport: tr},
+		hc:    hc,
 		now:   time.Now,
 		sleep: sleepCtx,
 		logf:  log.Printf,

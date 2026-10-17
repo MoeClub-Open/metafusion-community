@@ -20,6 +20,9 @@ func (h *Handler) registerFavorites(api *gin.RouterGroup) {
 
 	// 收藏切换需登录、不限管理员：普通用户与编辑均可收藏可见实体。
 	api.POST("/favorites/toggle", h.guard(true), func(c *gin.Context) {
+		if h.rejectThirdPartyFavorites(c) {
+			return
+		}
 		var in struct {
 			TargetType string `json:"target_type"`
 			TargetID   string `json:"target_id"`
@@ -65,6 +68,10 @@ func (h *Handler) registerFavorites(api *gin.RouterGroup) {
 
 	// 批量查询收藏状态：匿名返回空集合（未登录自然没有收藏）。
 	api.GET("/favorites/status", func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		if h.rejectThirdPartyFavorites(c) {
+			return
+		}
 		p := h.principal(c)
 		if p == nil {
 			c.JSON(200, gin.H{"favorited": []string{}})
@@ -130,18 +137,31 @@ func (h *Handler) registerFavorites(api *gin.RouterGroup) {
 
 	// 我的收藏需登录：普通用户可列出自己的收藏。
 	api.GET("/favorites/mine", h.guard(true), func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		if h.rejectThirdPartyFavorites(c) {
+			return
+		}
 		limit, offset := pagingPageSize(c, 20)
 		h.respondFavorites(c, h.principal(c).ID, c.Query("target_type"), limit, offset)
 	})
 
-	// 指定用户收藏列表：公开读，但目标实体仍按请求者可见性过滤；
-	// 不可见或已删除的目标跳过展示，不泄露其存在性。
+	// 指定用户收藏列表先执行账号服务的隐私偏好；本人始终可读。
+	// 已公开列表中的不可见或已删除目标跳过展示，不清空原始记录。
 	api.GET("/users/:id/favorites", func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
 		// 用户 id 是 uuid 主键：非法字面量按"没有这个人"处理（404），
 		// 不能送进 uuid 列——那只会拿到 pq 的解析错误，再被回显给客户端。
 		ownerID := c.Param("id")
 		if _, err := uuid.Parse(ownerID); err != nil {
 			fail(c, 404, "not_found")
+			return
+		}
+		visible, ok := h.favoritesVisible(c, ownerID)
+		if !ok {
+			return
+		}
+		if !visible {
+			c.JSON(200, gin.H{"items": []any{}, "total": 0, "visible": false})
 			return
 		}
 		limit, offset := pagingPageSize(c, 20)

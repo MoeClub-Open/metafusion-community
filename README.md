@@ -13,8 +13,8 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 - **收藏**：`community.favorites`（表结构与原 `catalog.favorites` 逐列一致，便于一次性导入），
   前端 `/api/favorites/*`、`/api/users/{id}/favorites` 由本服务承载。**合并旧身份的收藏不再由目录改写**：
   读取时经 `/api/catalog/entities/{id}/resolve` 跟随重定向，因此收藏不会因实体合并而消失。
-- **遗留**：收藏"是否公开"目前只有前端只读占位（`frontend/src/app/settings/page.tsx` 的开关是
-  `disabled readOnly`，目录侧无对应字段），接口恒返回 `visible: true`；落地该开关时应由本服务承担。
+- **收藏隐私**：账号服务保存 `favorites_public`，本服务经账号公开资料 API 实时读取并执行。
+  本人可读自己的收藏；非本人在关闭公开时只能得到 `visible:false` 的空列表，收藏计数为 `null`。
 
 ## HTTP 契约
 
@@ -41,8 +41,8 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 | GET | `/api/community/entities/{id}/collections` | 匿名 | 关联的合集（经目录关系接口，不 JOIN 目录表） |
 | POST | `/api/favorites/toggle` | 登录 | 切换收藏（目标必须是可见实体，且 kind 与 `target_type` 相符） |
 | GET | `/api/favorites/status` | 匿名 | 批量查询收藏状态（未登录返回空集合） |
-| GET | `/api/favorites/mine` | 登录 | 我的收藏（分页，目标按请求者可见性过滤） |
-| GET | `/api/users/{id}/favorites` | 匿名 | 指定用户的收藏列表（公开读，目标按可见性过滤） |
+| GET | `/api/favorites/mine` | 站内会话 / PAT | 我的收藏，返回 `{"items":[…],"total":N,"visible":true}`（分页，目标按请求者可见性过滤） |
+| GET | `/api/users/{id}/favorites` | 匿名 | 按账号 `favorites_public` 公开列表，目标按可见性过滤；关闭时非本人返回 `{"items":[],"total":0,"visible":false}`，本人仍可读 |
 | GET | `/api/community/admin/favorites` | `community.report.review` | 全用户原始收藏记录：`page`/`page_size`（默认 20、上限 100），可按 `owner_id`、`target_type`、`target_id` 精确筛选；返回 `{"items":[{"owner_id":"…","target_type":"work","target_id":"…","created_at":"…"}],"total":N}`，不依赖目录可见性或别名解析 |
 | DELETE | `/api/community/admin/favorites` | `community.report.review` | 三个 query 参数 `owner_id`、`target_type`、`target_id` 全部必填，只删除精确复合键；成功 204、不存在 404 `not_found`；非法参数分别为 400 `invalid_owner_id` / `invalid_target_type` / `invalid_target_id` |
 | GET | `/api/users/{id}/stats` | 匿名 | 用户互动统计（主题 / 楼中回复 / 收藏），`{"stats":{…}}`；口径见「用户互动统计」 |
@@ -223,18 +223,27 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 | --- | --- | --- |
 | `topics_created` | 论坛主题 | `community.topics` 里 `author_id` 本人、且 `board_code <> 'comment'` 的行（评论板块的行是实体短评，不是主题，主题列表同样排除它） |
 | `comments_created` | 楼中回复（前端标签"互动回复"） | `community.posts` 里 `author_id` 本人的行 |
-| `favorites_count` | 公开可见的收藏 | `community.favorites` 里 `user_id` 本人的行 |
+| `favorites_count` | 收藏数量，隐私隐藏时为 `null` | `community.favorites` 里 `user_id` 本人的行；仅本人或账号 `favorites_public=true` 时返回数字 |
 
-两处取舍：
+统计口径：
 
 - **短评（评论板块）不计入任何一个数字**：它既不是主题，也不在 `community.posts` 里；
   宁可少算，也不让同一行在两个数字里各出现一次。
-- **"公开可见"就是全部收藏行**：`community` 侧没有收藏公开标记、也没有用户设置表（"收藏是否公开"
-  目前只是前端只读占位），因此这里与 `GET /api/users/{id}/favorites` 的 `total` 完全同口径
-  （目标实体自身的可见性由读取方逐条过滤，不影响计数）；真库用例直接断言两者一致。
+- **收藏隐私由账号服务唯一管理**：非本人读取列表和统计时，均实时读取 `GET AUTH_URL/api/users/{id}` 的
+  `user.favorites_public`，不复制偏好、不缓存、不转发请求者凭据。关闭公开后列表返回 `visible:false`、空数组、
+  `total:0`，统计的 `favorites_count` 返回 `null`；本人和独立的管理员收藏治理接口仍可读。
+  公开时计数与列表 `total` 同口径，目标实体自身的可见性由读取方逐条过滤，不影响计数。
 - **停用板块不影响统计**：`topics_created` 数的是"我发过多少主题"这一事实，不是公开读路径，
   因此不过滤 `is_enabled`（与"停用板块的存量主题仍归作者所有"同一口径）。
-- 不存在的用户与"没有互动记录的用户"都返回 0：账号数据不归本服务，这里不查账号库（只看 uuid 字面量）。
+- 账号资料返回 404 时公开列表和统计均为 `404 not_found`；账号服务不可达、未配置或响应契约不完整时为
+  `503 auth_unavailable`，绝不按默认公开处理。现存用户没有互动记录时可见数字为 0。
+- 两个公开读取端点均返回 `Cache-Control: no-store`，避免隐私切换后 HTTP 缓存继续展示旧列表或计数。
+- `/favorites/mine` 与 `/favorites/status` 同样返回 `Cache-Control: no-store`，防止本人收藏在换账号后被复用。
+- 当前没有可授予第三方 OAuth 的收藏 scope；第三方身份调用 `/favorites/mine`、`/favorites/status`、
+  `/favorites/toggle` 返回 `403 forbidden`，读取用户公开列表/统计时也不享有本人豁免。站内会话和 PAT 保留原有能力。
+- 出站仅通过 `X-Forwarded-For` 携带 Gin 按 `TRUSTED_PROXIES` 解析并校验的单个客户端 IP，
+  不复制原始转发链，让账号服务继续按真实访客计数；账号服务的受信代理范围须包含社区节点。
+  默认容器私网策略满足此约定，定制代理范围时需同步配置，不能用放开账号限流替代。
 
 **网关分流已就位**（主仓库 `deploy/nginx.conf`，提交 `7ab2f97`）：`/api/community/*`、`/api/favorites/*`、
 `^/api/users/[^/]+/favorites$`、`^/api/users/[^/]+/stats$` 与 `/api/messages/` 全部分流到本服务
@@ -392,7 +401,7 @@ go run cmd/migrate -direction back
 | `PORT` | `8083` | 监听端口 |
 | `DATABASE_URL` | 必填 | 互动域专用 PostgreSQL 身份的连接串；不读取 `DB_*`。业务表在 `community` schema，审计表在 `audit`（见「审计留痕」） |
 | `COMMUNITY_JWKS_URL` | `http://auth:8081/api/oidc/jwks` | 验签公钥来源：账号服务是唯一签发方 |
-| `AUTH_URL` | 空 | 账号服务地址：PAT 内省（`POST /api/auth/tokens/introspect`）及健康探针；留空时 PAT 一律 `503 auth_unavailable` |
+| `AUTH_URL` | 空 | 账号服务地址：PAT 内省（`POST /api/auth/tokens/introspect`）、收藏隐私（`GET /api/users/{id}`）及健康探针；留空时 PAT 和非本人收藏/统计读取一律 `503 auth_unavailable` |
 | `AUTH_JWT_PUBLIC_KEY` | 空 | 静态公钥（PEM 或 base64 PEM）；设置后不再请求 JWKS |
 | `AUTH_JWT_ISSUER` / `AUTH_JWT_AUDIENCE` | `https://findverse.cc/api` / `metafusion` | 与主仓库一致，避免存量令牌失效 |
 | `CATALOG_URL` | `http://backend:8080` | 目录服务地址（可见性、标题、关系邻居） |

@@ -15,7 +15,7 @@ import (
 // 用户互动统计的真库用例：造数据 → 打端点 → 断言三个数字，并把"哪些行不算"的反例一起钉住。
 // 夹具复用 opsFixture（真库 + 目录桩 + 路由），身份用全新的 uuid，跑完清干净。
 func TestUserStatsAgainstPostgres(t *testing.T) {
-	ctx, db, router, _, _ := opsFixture(t)
+	ctx, db, router, _, _ := opsFixture(t, withPublicAccountProfiles(t))
 	probe, other := uuid.NewString(), uuid.NewString()
 	cleanup := func() { cleanupStats(ctx, db, probe, other) }
 	cleanup()
@@ -87,8 +87,7 @@ func TestUserStatsAgainstPostgres(t *testing.T) {
 		t.Fatalf("删掉短评后主题/回复数不该变：%v", got)
 	}
 
-	// 非法 uuid：404（不把 pq 解析错误兜成 500）；没有任何互动记录的 id：三个 0
-	// （账号不归本服务，无法区分"没有记录"与"没有这个人"，与收藏列表用空列表表示同一个意思）。
+	// 非法 uuid：404（不把 pq 解析错误兜成 500）；账号桩确认存在但没有互动记录：三个 0。
 	if w := opsCall(t, router, http.MethodGet, "/api/users/not-a-uuid/stats", "", ""); w.Code != 404 {
 		t.Fatalf("非法用户 id 应 404，实际 %d（%s）", w.Code, w.Body.String())
 	}
