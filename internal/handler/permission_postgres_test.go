@@ -61,8 +61,8 @@ func TestModerationEndpointsHonourPermissionCodes(t *testing.T) {
 			})
 			return
 		}
-		if strings.HasSuffix(r.URL.Path, "/relations") {
-			_ = json.NewEncoder(w).Encode(map[string]any{"items": []any{}, "entities": map[string]any{}})
+		if strings.HasSuffix(r.URL.Path, "/links") {
+			_ = json.NewEncoder(w).Encode(map[string]any{"has_more": false, "limit": 100, "items": []any{}, "entities": map[string]any{}})
 			return
 		}
 		_ = json.NewEncoder(w).Encode(map[string]any{"id": entityID, "kind": "work", "title": "测试作品", "state": "active"})

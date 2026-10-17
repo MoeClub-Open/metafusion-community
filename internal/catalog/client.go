@@ -406,54 +406,59 @@ func (c *Client) Related(ctx context.Context, entityID string, kinds []string) (
 	if c.base == "" {
 		return nil, c.notConfiguredError()
 	}
-	resp, err := c.up.Do(ctx, upstream.Request{
-		Method: http.MethodGet,
-		URL:    c.base + "/api/catalog/entities/" + entityID + "/relations",
-		Header: outboundHeaders(ctx),
-	})
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	switch {
-	case resp.StatusCode == http.StatusOK:
-	case resp.StatusCode == http.StatusNotFound:
-		return nil, nil
-	default:
-		return nil, upstreamError(c.name(), statusReason(resp.StatusCode), resp.StatusCode, nil)
-	}
-	var payload struct {
-		Items []struct {
-			SourceID string `json:"source_id"`
-			TargetID string `json:"target_id"`
-		} `json:"items"`
-		Entities map[string]Entity `json:"entities"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
-		return nil, upstreamError(c.name(), upstream.ReasonBadResponse, 0, err)
-	}
 	seen := map[string]bool{}
 	out := []Entity{}
-	for _, r := range payload.Items {
-		for _, peer := range []string{r.SourceID, r.TargetID} {
-			if peer == "" || peer == entityID || seen[peer] {
-				continue
-			}
-			seen[peer] = true
-			e, ok := payload.Entities[peer]
-			if !ok {
-				continue
-			}
-			if len(kinds) > 0 && !contains(kinds, e.Kind) {
-				continue
-			}
-			if e.State != "active" {
-				continue
-			}
-			out = append(out, e)
+	for offset := 0; ; {
+		resp, err := c.up.Do(ctx, upstream.Request{
+			Method: http.MethodGet,
+			URL:    c.base + "/api/catalog/entities/" + entityID + "/links?limit=100&offset=" + strconv.Itoa(offset),
+			Header: outboundHeaders(ctx),
+		})
+		if err != nil {
+			return nil, err
 		}
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			if resp.StatusCode == http.StatusNotFound && offset == 0 {
+				return nil, nil
+			}
+			return nil, upstreamError(c.name(), statusReason(resp.StatusCode), resp.StatusCode, nil)
+		}
+		var payload struct {
+			Items []struct {
+				SourceID string `json:"source_id"`
+				TargetID string `json:"target_id"`
+			} `json:"items"`
+			Entities map[string]Entity `json:"entities"`
+			HasMore  *bool             `json:"has_more"`
+			Limit    int               `json:"limit"`
+		}
+		err = json.NewDecoder(resp.Body).Decode(&payload)
+		resp.Body.Close()
+		if err != nil {
+			return nil, upstreamError(c.name(), upstream.ReasonBadResponse, 0, err)
+		}
+		if payload.HasMore == nil || payload.Limit < 1 || payload.Entities == nil || payload.Items == nil {
+			return nil, upstreamError(c.name(), upstream.ReasonBadResponse, 0, errors.New("invalid relationship page"))
+		}
+		for _, link := range payload.Items {
+			for _, peer := range []string{link.SourceID, link.TargetID} {
+				if peer == "" || peer == entityID || seen[peer] {
+					continue
+				}
+				seen[peer] = true
+				entity, ok := payload.Entities[peer]
+				if !ok || entity.State != "active" || (len(kinds) > 0 && !contains(kinds, entity.Kind)) {
+					continue
+				}
+				out = append(out, entity)
+			}
+		}
+		if !*payload.HasMore {
+			return out, nil
+		}
+		offset += payload.Limit
 	}
-	return out, nil
 }
 
 func (c *Client) name() string { return c.up.Name() }

@@ -14,6 +14,32 @@ import (
 	"github.com/MoeclubM/metafusion-community/internal/upstream"
 )
 
+func TestRelatedFollowsUnifiedLinkPages(t *testing.T) {
+	const subject = "subject"
+	count := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/catalog/entities/subject/links" {
+			t.Errorf("unexpected path: %s", r.URL.Path)
+		}
+		count++
+		second := r.URL.Query().Get("offset") == "100"
+		peer := "first"
+		if second {
+			peer = "second"
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"limit": 100, "has_more": !second,
+			"items":    []any{map[string]any{"source_id": subject, "target_id": peer}},
+			"entities": map[string]any{peer: map[string]any{"id": peer, "kind": "collection", "state": "active"}},
+		})
+	}))
+	defer server.Close()
+	got, err := New(server.URL, time.Second).Related(context.Background(), subject, []string{"collection"})
+	if err != nil || len(got) != 2 || count != 2 {
+		t.Fatalf("pagination: %v %v requests=%d", got, err, count)
+	}
+}
+
 func TestMissingCatalogConfigurationIsUnavailable(t *testing.T) {
 	ctx := context.Background()
 	c := New("  ", 0)

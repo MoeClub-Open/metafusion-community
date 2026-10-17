@@ -62,8 +62,8 @@ func TestForumEndpointsAgainstPostgres(t *testing.T) {
 			})
 			return
 		}
-		if strings.HasSuffix(r.URL.Path, "/relations") {
-			_ = json.NewEncoder(w).Encode(map[string]any{"items": []any{map[string]any{"source_id": collectionID, "target_id": entityID}}, "entities": map[string]any{collectionID: map[string]any{"id": collectionID, "kind": "collection", "title": "Active collection", "state": "active"}}})
+		if strings.HasSuffix(r.URL.Path, "/links") {
+			_ = json.NewEncoder(w).Encode(map[string]any{"has_more": false, "limit": 100, "items": []any{map[string]any{"source_id": collectionID, "target_id": entityID}}, "entities": map[string]any{collectionID: map[string]any{"id": collectionID, "kind": "collection", "title": "Active collection", "state": "active"}}})
 			return
 		}
 		_ = json.NewEncoder(w).Encode(map[string]any{"id": entityID, "kind": "work", "title": "测试作品", "state": "active"})
