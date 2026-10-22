@@ -2,15 +2,15 @@
 # 互动服务自带后台（community-admin）：Next.js standalone 产物，容器内监听 3000。
 # 网关按前缀 /admin/community 接入（见 README「宿主需要接入的东西」）。
 #
-# 用 node:24-alpine 而不是 bun 镜像：本应用的依赖、类型检查、测试与构建全部在 npm 链上验证，
+# 用 node:24.22.1-alpine 而不是 bun 镜像：本应用的依赖、类型检查、测试与构建全部在 npm 链上验证，
 # 镜像里不引入第二套包管理器（frontend 用 bun 是它自己的历史选择，不在这里复制）。
-FROM node:24-alpine AS deps
+FROM node:24.22.1-alpine AS deps
 WORKDIR /app
 COPY admin/package.json admin/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --no-audit --no-fund
 
-FROM node:24-alpine AS builder
+FROM node:24.22.1-alpine AS builder
 WORKDIR /app
 # NEXT_PUBLIC_* 会在**构建期**内联进产物，因此只能走 build arg（运行期 env 无效）。
 # 留空 = 请求同源网关路径 /api/*（生产形态）。
@@ -22,7 +22,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY admin/ ./
 RUN npm run build
 
-FROM node:24-alpine AS runner
+FROM node:24.22.1-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

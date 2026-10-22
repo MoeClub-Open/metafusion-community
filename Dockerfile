@@ -1,4 +1,4 @@
-FROM golang:1.27.2-alpine AS builder
+FROM golang:1.27.3-alpine AS builder
 WORKDIR /app
 COPY go.mod go.sum* ./
 RUN go mod download
@@ -9,7 +9,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/community-server ./cmd/server && \
     CGO_ENABLED=0 GOOS=linux go build -o /app/community-migrate ./cmd/migrate
 
-FROM alpine:3.20
+FROM alpine:3.24.3
 WORKDIR /app
 COPY --from=builder /app/community-server /app/community-server
 COPY --from=builder /app/community-migrate /app/community-migrate
