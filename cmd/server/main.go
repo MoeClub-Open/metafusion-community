@@ -76,6 +76,7 @@ func main() {
 	// 同时它也是 /ready?deep=1 探账号服务的执行器。
 	pat := auth.NewPATIntrospector(cfg.AuthURL)
 	verifier.SetPAT(pat)
+	verifier.SetCredentialsChecker(auth.NewCredentialsChecker(cfg.AuthURL))
 	if cfg.AuthURL == "" {
 		log.Print("AUTH_URL is not configured: personal access tokens and other users' favorites/statistics will return 503 auth_unavailable")
 	}
