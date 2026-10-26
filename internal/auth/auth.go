@@ -41,6 +41,8 @@ type Principal struct {
 	IsThirdParty bool `json:"-"`
 	// FromPAT 区分 PAT 与 JWT，供审计记录凭据类型，不参与权限判定。
 	FromPAT bool `json:"-"`
+	// TokenVersion 来自 JWT tv；验签后与账号服务 credentials-status 核对。
+	TokenVersion int64 `json:"-"`
 }
 
 // authPolicy 是账号侧出站调用的策略（会话兜底与 PAT 内省共用同一套口径）：
@@ -71,6 +73,8 @@ type Verifier struct {
 	// pat 是个人访问令牌的内省器（见 pat.go）。为 nil（未配置 AUTH_URL）时，
 	// 带 mfp_ 前缀的请求一律 503 auth_unavailable——身份只能问账号服务。
 	pat *PATIntrospector
+	// creds 核对会话/OAuth JWT 的 token_version 与封禁（见 credentials.go）。
+	creds *CredentialsChecker
 
 	mu        sync.RWMutex
 	keys      map[string]*rsa.PublicKey
@@ -120,6 +124,8 @@ type claims struct {
 	Scope    string `json:"scope"`
 	ClientID string `json:"client_id"`
 	TokenUse string `json:"token_use"`
+	// TokenVersion 与签发侧 Claims.tv 对齐。
+	TokenVersion int64 `json:"tv"`
 	jwt.RegisteredClaims
 }
 
@@ -145,6 +151,9 @@ func New(cfg config.Config) (*Verifier, error) {
 
 // SetPAT 注入 PAT 内省器；nil 表示不接 PAT（带 mfp_ 的请求回 503 auth_unavailable）。
 func (v *Verifier) SetPAT(p *PATIntrospector) { v.pat = p }
+
+// SetCredentialsChecker 注入凭据世代核对器；未注入时跳过 tv/ban 核对（仅 JWKS）。
+func (v *Verifier) SetCredentialsChecker(c *CredentialsChecker) { v.creds = c }
 
 func parsePublicKey(raw string) (*rsa.PublicKey, error) {
 	text := strings.TrimSpace(raw)
@@ -210,7 +219,7 @@ func (v *Verifier) Verify(token string) (*Principal, error) {
 		ID: c.Subject, Username: c.Username,
 		Groups: c.Groups, Permissions: c.Permissions,
 		Scope: strings.TrimSpace(c.Scope), ClientID: strings.TrimSpace(clientID),
-		IsThirdParty: thirdParty,
+		IsThirdParty: thirdParty, TokenVersion: c.TokenVersion,
 	}, nil
 }
 
@@ -439,9 +448,29 @@ func (v *Verifier) resolve(c *gin.Context) (*Principal, patStatus) {
 		credential = cookie
 	}
 	if p, err := v.Verify(credential); err == nil {
+		if _, ok, unavailable := v.checkCredentials(c.Request.Context(), p); unavailable {
+			return nil, patUnavailable
+		} else if !ok {
+			return nil, patOK // 世代不匹配或已封禁：按匿名，Required 会 401
+		}
 		return p, patOK
 	}
 	return nil, patOK
+}
+
+// checkCredentials 在 JWKS 验签后核对账号库世代。未配置核对器时放行（ok=true）。
+func (v *Verifier) checkCredentials(ctx context.Context, p *Principal) (st CredentialsStatus, ok bool, unavailable bool) {
+	if v == nil || v.creds == nil || !v.creds.Enabled() || p == nil {
+		return CredentialsStatus{}, true, false
+	}
+	st, err := v.creds.Lookup(ctx, p.ID)
+	if err != nil {
+		return CredentialsStatus{}, false, true
+	}
+	if !st.Match(p.TokenVersion) {
+		return st, false, false
+	}
+	return st, true, false
 }
 
 // introspectPAT 是 PAT 的内省入口：内省器未注入（未配置 AUTH_URL）时按不可用处理。
