@@ -42,7 +42,7 @@ MetaFusion 互动服务（`metafusion-community`）自带的运营后台：**板
 - **板块 `PUT` 是补丁语义**：只提交改动过的字段（空载荷 400 `invalid_payload`）；
   `names`/`descriptions` 是**四语 map**，名称四语齐备且非空，描述允许四语全空 = 清空；
   缺语种返回 400 `four_locale_names_required: <语种清单>`（界面翻成"还缺哪些语种"）；
-  `code` 是主题归属锚点不可改，服务端也不提供新建与删除板块。
+  支持新建板块及编辑已有配置；`code` 是主题归属锚点，创建后不可改。停用保留已有主题。
 - **帖子治理的回复来自 `GET /api/community/posts`**（本次随本后台一起加到服务端）：
   跨主题、`q` 匹配主题标题或回复正文、分页 `page`/`page_size`（缺省 20、上限 100，越界静默收敛），
   响应 `{"items":[…],"total":N}`；每项带 `topic_id`/`topic_title`/`board_code`/作者快照/楼层号/

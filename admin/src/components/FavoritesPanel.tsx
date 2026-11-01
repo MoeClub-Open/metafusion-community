@@ -14,7 +14,7 @@ const EMPTY_FILTERS = { ownerID: "", targetType: "" as FavoriteTargetType | "", 
 
 function rowKey(row: AdminFavoriteRow): string { return `${row.owner_id}:${row.target_type}:${row.target_id}`; }
 
-export function FavoritesPanel({ reloadKey }: { reloadKey: number }) {
+export function FavoritesPanel() {
   const { t, locale } = useI18n();
   const { can } = useSession();
   const allowed = can(COMMUNITY_REPORT_REVIEW);
@@ -49,7 +49,7 @@ export function FavoritesPanel({ reloadKey }: { reloadKey: number }) {
       .catch((err: unknown) => { if (alive) setError(describeError(toErrorLike(err), t, locale, COMMUNITY_REPORT_REVIEW)); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [allowed, filters, page, pageSize, nonce, reloadKey, t, locale]);
+  }, [allowed, filters, page, pageSize, nonce, t, locale]);
 
   async function remove(row: AdminFavoriteRow) {
     if (!allowed || deleting) return;

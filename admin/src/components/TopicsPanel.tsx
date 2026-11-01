@@ -32,7 +32,7 @@ import {
   TextInput,
 } from "./ui";
 
-export function TopicsPanel({ reloadKey }: { reloadKey: number }) {
+export function TopicsPanel() {
   const { t, locale } = useI18n();
   const { can, user } = useSession();
   const mayPin = can(COMMUNITY_TOPIC_PIN);
@@ -66,7 +66,7 @@ export function TopicsPanel({ reloadKey }: { reloadKey: number }) {
     return () => {
       alive = false;
     };
-  }, [reloadKey]);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -87,7 +87,7 @@ export function TopicsPanel({ reloadKey }: { reloadKey: number }) {
     return () => {
       alive = false;
     };
-  }, [boardCode, query, page, nonce, reloadKey, t, locale, mayPin]);
+  }, [boardCode, query, page, nonce, t, locale, mayPin]);
 
   const pages = useMemo(() => pageCount(total, TOPIC_PAGE_SIZE), [total]);
   useEffect(() => {

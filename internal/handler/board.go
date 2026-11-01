@@ -15,8 +15,7 @@ import (
 // 颜色、图标、排序、两个开关。
 //
 // 三条边界：code 是 community.topics.board_code 的外键，**不可改**（改码要么让存量主题悬空、
-// 要么得级联改主题的板块归属，都不该由"改名"顺带做掉）；本服务不提供创建与删除板块
-// （板块由种子播种、运营配置），删除会让存量主题失去归属；描述不是必填，但名称是身份。
+// 要么得级联改主题的板块归属，都不该由"改名"顺带做掉）；创建单独走 POST，停用保留主题归属。
 //
 // 只改传入字段：调用方想单独切 show_in_feed 或 is_enabled 时不必回传整份配置，
 // 也就不会因为漏带某个字段而把它清空。
@@ -72,6 +71,7 @@ func addLocaleUpdate(set *[]string, args *[]any, column string, value map[string
 }
 
 func (h *Handler) registerBoards(api *gin.RouterGroup) {
+	h.registerBoardCreation(api)
 	api.PUT("/community/boards/:code", h.require(auth.PermissionBoardManage), func(c *gin.Context) {
 		code := strings.TrimSpace(c.Param("code"))
 		if code == "" {

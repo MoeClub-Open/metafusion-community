@@ -34,7 +34,7 @@ import {
 
 const REPLY_PAGE_SIZE = 20;
 
-export function PostsPanel({ reloadKey }: { reloadKey: number }) {
+export function PostsPanel() {
   const { t, locale } = useI18n();
   const { can } = useSession();
   const mayModerate = can(COMMUNITY_POST_MODERATE);
@@ -83,7 +83,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
     return () => {
       alive = false;
     };
-  }, [query, page, nonce, reloadKey, t, locale]);
+  }, [query, page, nonce, t, locale]);
 
   useEffect(() => {
     let alive = true;
@@ -103,7 +103,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
     return () => {
       alive = false;
     };
-  }, [commentQuery, commentNonce, reloadKey, t, locale]);
+  }, [commentQuery, commentNonce, t, locale]);
 
   const pages = useMemo(() => Math.max(1, Math.ceil((total || 0) / REPLY_PAGE_SIZE)), [total]);
   useEffect(() => {

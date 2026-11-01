@@ -37,7 +37,8 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 | GET | `/api/community/posts/{id}` | 匿名 | 单条短评（稳定 permalink）；停用的评论板块 404 |
 | DELETE | `/api/community/posts/{id}` | 作者 / `community.post.moderate` | 删短评（仅评论板块） |
 | PUT | `/api/community/topics/{id}/pin` | `community.topic.pin` | 置顶 / 取消置顶（`{pinned: bool}`，写 `is_pinned`；评论板块的条目不可置顶） |
-| PUT | `/api/community/boards/{code}` | `community.board.manage` | 板块配置：`names` / `descriptions`（**四语 map**，缺语种 400 `four_locale_names_required`）、`color`、`icon`、`sort_order`、`is_enabled`、`show_in_feed`；只改传入字段，`names` 不可为空，`code` 不可改，不提供新增与删除板块 |
+| POST | `/api/community/boards` | `community.board.manage` | 新建板块，201 返回板块；四语 `names` 必填，`descriptions` 可省略；`code` 为1–64位小写字母/数字/短横线/下划线且首位为字母或数字，重复409 `board_exists`。颜色、图标、排序与开关沿用配置字段和默认值 |
+| PUT | `/api/community/boards/{code}` | `community.board.manage` | 板块配置：`names` / `descriptions`（**四语 map**，缺语种 400 `four_locale_names_required`）、`color`、`icon`、`sort_order`、`is_enabled`、`show_in_feed`；只改传入字段，`names` 不可为空，`code` 不可改；停用保留已有主题 |
 | GET | `/api/community/entities/{id}/collections` | 匿名 | 关联的合集（经目录关系接口，不 JOIN 目录表） |
 | POST | `/api/favorites/toggle` | 登录 | 切换收藏（目标必须是可见实体，且 kind 与 `target_type` 相符） |
 | GET | `/api/favorites/status` | 匿名 | 批量查询收藏状态（未登录返回空集合） |
@@ -272,6 +273,7 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 | POST | `/api/community/topics/{id}/posts` | `post.created` | `post` = 新回复 id |
 | POST | `/api/community/entities/{id}/posts` | `comment.created` | `comment` = 新短评 id |
 | PUT | `/api/community/topics/{id}/pin` | `topic.pinned` | `topic` |
+| POST | `/api/community/boards` | `board.created` | `board` = code |
 | PUT | `/api/community/boards/{code}` | `board.updated` | `board` = code |
 | DELETE | `/api/community/topics/{id}` | `topic.deleted` | `topic` |
 | DELETE | `/api/community/topics/{id}/posts/{postId}` | `post.deleted` | `post` |
@@ -294,7 +296,7 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 
 四处需要知道的口径：
 
-- **本服务没有的写能力**：板块只有"改已有板块"（新增与删除由种子与后台完成，无端点）；
+- **板块管理**：支持创建及配置已有板块，停用保留主题；不提供直接删除含主题归属的板块。
   没有封禁端点（封禁归账号服务）；私信的已读回执**已经有了**（`message.read`），
   但拉黑 / 举报仍没有（留给 F3）。这些在任务清单里点名核过，都是"端点不存在"，不是漏接线。
 - **收件箱的两条读接口是纯读**（`GET /api/messages/conversations`、`GET /api/messages/unread`）：
@@ -327,7 +329,7 @@ MetaFusion 社区互动服务：论坛（板块/主题/回复/标签）、条目
 | `community.post.create` | 发主题、回帖、短评三处写接口的闸门（member 组默认持有） |
 | `community.post.moderate` | 删除**他人**的主题、回复与短评（作者删自己的内容不需要任何码） |
 | `community.topic.pin` | 置顶 / 取消置顶主题（`PUT /api/community/topics/{id}/pin`） |
-| `community.board.manage` | 板块配置（`PUT /api/community/boards/{code}`） |
+| `community.board.manage` | 板块创建与配置（`POST /api/community/boards`、`PUT /api/community/boards/{code}`） |
 
 未声明 `permissions` 或权限集合为空的身份不获得写权限；仅持有对应权限码或 `*` 通配时放行。
 组码与角色不额外授予权限，第三方访问令牌默认不能调用治理接口。

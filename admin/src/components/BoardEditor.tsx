@@ -1,15 +1,9 @@
 "use client";
 
-// 板块编辑器：四语名称/描述 + 颜色/图标/排序/两个开关。
-//
-// 三条与服务端契约对齐的规则（internal/handler/board.go）：
-//   1. PUT 是补丁语义——只发改动过的字段，空补丁会被 400 拒，所以界面上先拦一次；
-//   2. 名称四语齐备且非空（缺语种 = 400 four_locale_names_required），描述允许四语全空 = 清空；
-//   3. code 不可改、板块不可新建或删除——编辑器里就不提供这些入口。
-
+// 板块创建与配置共用表单；停用保留已有主题。
 import { useMemo, useState } from "react";
 import { useI18n } from "@/lib/i18n/provider";
-import { updateBoard } from "@/lib/api/boards";
+import { createBoard, updateBoard } from "@/lib/api/boards";
 import {
   BOARD_COLORS,
   BOARD_ICON_SUGGESTIONS,
@@ -40,6 +34,8 @@ export const BOARD_FIELD_KEYS: Record<string, string> = {
   show_in_feed: "admin.boards.fieldFeed",
 };
 
+const EMPTY_BOARD: BoardRow = { code: "", names: {}, descriptions: {}, color: "emerald", icon: "BookOpen", sort_order: 0, is_enabled: true, show_in_feed: true };
+
 function formFrom(row: BoardRow): BoardFormValues {
   const names: Record<string, string> = {};
   const descriptions: Record<string, string> = {};
@@ -58,9 +54,11 @@ function formFrom(row: BoardRow): BoardFormValues {
   };
 }
 
-export function BoardEditor(props: { row: BoardRow; onClose: () => void; onSaved: (row: BoardRow, fields: string[]) => void }) {
+export function BoardEditor(props: { row: BoardRow | null; onClose: () => void; onSaved: (row: BoardRow, fields: string[]) => void }) {
   const { t, locale } = useI18n();
-  const { row } = props;
+  const creating = props.row === null;
+  const row = props.row ?? EMPTY_BOARD;
+  const [code, setCode] = useState(row.code);
   const [form, setForm] = useState<BoardFormValues>(() => formFrom(row));
   const [sortText, setSortText] = useState(String(row.sort_order ?? 0));
   const [busy, setBusy] = useState(false);
@@ -74,13 +72,14 @@ export function BoardEditor(props: { row: BoardRow; onClose: () => void; onSaved
   // 实时差分：让"这次会提交什么"在点击保存前就可见（空补丁 = 未提交）。
   const patch = useMemo<BoardPatch>(() => {
     const sort = Number.parseInt(sortText, 10);
-    return diffBoardPatch(row, {
+    const next = {
       ...form,
       names: trimLocaleMap(form.names),
       descriptions: trimLocaleMap(form.descriptions),
       sort_order: Number.isNaN(sort) ? row.sort_order : sort,
-    });
-  }, [form, row, sortText]);
+    };
+    return creating ? next : diffBoardPatch(row, next);
+  }, [form, row, sortText, creating]);
   const patchFields = patchFieldNames(patch);
 
   const setLocaleValue = (field: "names" | "descriptions", code: string, value: string) =>
@@ -90,7 +89,8 @@ export function BoardEditor(props: { row: BoardRow; onClose: () => void; onSaved
     setBusy(true);
     setError("");
     setInfo("");
-    updateBoard(row.code, payload)
+    const request = creating ? createBoard({ code: code.trim(), ...payload }) : updateBoard(row.code, payload);
+    request
       .then((updated) => {
         props.onSaved(updated, fields);
       })
@@ -101,6 +101,7 @@ export function BoardEditor(props: { row: BoardRow; onClose: () => void; onSaved
   const onSave = () => {
     setError("");
     setInfo("");
+    if (creating && !/^[a-z0-9][a-z0-9_-]{0,63}$/.test(code.trim())) { setError(t("admin.err.invalidBoardCode")); return; }
     const names = checkLocaleMap(form.names);
     if (!names.ok) {
       setError(t("admin.boards.missingLocales", { locales: formatLocaleList(names.missing, locale) }));
@@ -129,7 +130,7 @@ export function BoardEditor(props: { row: BoardRow; onClose: () => void; onSaved
       return;
     }
     // 停用会让板块不能再发新主题：破坏性变更先确认（确认框拿的是同一份 patch，不会被表单漂移改掉）。
-    if (patch.is_enabled === false && row.is_enabled) {
+    if (!creating && patch.is_enabled === false && row.is_enabled) {
       setPending({ patch, fields: patchFields });
       return;
     }
@@ -140,7 +141,8 @@ export function BoardEditor(props: { row: BoardRow; onClose: () => void; onSaved
     <>
       <Modal
         wide
-        title={t("admin.boards.editTitle", { code: row.code })}
+        busy={busy}
+        title={creating ? t("admin.boards.create") : t("admin.boards.editTitle", { code: row.code })}
         onClose={props.onClose}
         footer={
           <>
@@ -153,7 +155,7 @@ export function BoardEditor(props: { row: BoardRow; onClose: () => void; onSaved
           </>
         }
       >
-        <p className="text-[11px] leading-relaxed text-text-muted">{t("admin.boards.codeNote")}</p>
+        {creating ? <Field label={t("admin.boards.colCode")} hint={t("admin.boards.codeHint")}><TextInput value={code} maxLength={64} onChange={event => setCode(event.target.value)} /></Field> : <p className="text-[11px] leading-relaxed text-text-muted">{t("admin.boards.codeNote")}</p>}
 
         <div className="grid gap-3 sm:grid-cols-2">
           {BOARD_LOCALES.map((code) => (
@@ -208,11 +210,11 @@ export function BoardEditor(props: { row: BoardRow; onClose: () => void; onSaved
 
         {error ? <Notice kind="err" text={error} /> : null}
         {info ? <Notice kind="info" text={info} /> : null}
-        <p className="text-[11px] leading-relaxed text-text-muted">
+        {!creating && <p className="text-[11px] leading-relaxed text-text-muted">
           {patchFields.length > 0
             ? t("admin.boards.patchPreview", { fields: fieldsText(patchFields) })
             : t("admin.boards.noChange")}
-        </p>
+        </p>}
       </Modal>
 
       {pending ? (

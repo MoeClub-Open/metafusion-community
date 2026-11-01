@@ -18,3 +18,7 @@ export function updateBoard(code: string, patch: BoardPatch): Promise<BoardRow> 
     body: JSON.stringify(patch),
   });
 }
+
+export function createBoard(input: BoardPatch & { code: string }): Promise<BoardRow> {
+  return fetchApi<BoardRow>("/api/community/boards", { method: "POST", body: JSON.stringify(input) });
+}

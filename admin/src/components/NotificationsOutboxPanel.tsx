@@ -11,7 +11,7 @@ import { Badge, Button, Card, CELL_CLASS, EmptyRow, Field, HEAD_CLASS, LoadingRo
 
 const STATUSES: NotificationOutboxStatus[] = ["pending", "sent", "failed", "expired"];
 
-export function NotificationsOutboxPanel({ reloadKey }: { reloadKey: number }) {
+export function NotificationsOutboxPanel() {
   const { t, locale } = useI18n();
   const { can } = useSession();
   const allowed = can(COMMUNITY_REPORT_REVIEW);
@@ -47,7 +47,7 @@ export function NotificationsOutboxPanel({ reloadKey }: { reloadKey: number }) {
       })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [allowed, status, page, pageSize, nonce, reloadKey, t, locale]);
+  }, [allowed, status, page, pageSize, nonce, t, locale]);
 
   async function retryDue() {
     if (!allowed || retrying) return;

@@ -46,7 +46,6 @@ export function AppShell() {
     return disconnect ?? undefined;
   }, [setLocale, setTheme]);
   const [tab, setTab] = useState<TabId | "">("");
-  const [reloadKey, setReloadKey] = useState(0);
   const [signInHref, setSignInHref] = useState<string>(LOGIN_PATH);
 
   useEffect(() => { setSignInHref(signInHrefOnce()); }, []);
@@ -78,14 +77,8 @@ export function AppShell() {
     }
     announceAdminNavigation();
   }, []);
-  const refreshAll = useCallback(() => { reload(); setReloadKey((n) => n + 1); }, [reload]);
   const visibleTabs = TABS.filter((item) => allowed[item.id]);
   const anyAllowed = visibleTabs.length > 0;
-  const permissionSummary = useMemo(() => {
-    const perms = user?.permissions ?? [];
-    if (perms.includes("*")) return t("admin.session.permissionsWildcard");
-    return t("admin.session.permissionsCount", { count: perms.length });
-  }, [user, t]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-text-strong">
@@ -125,18 +118,6 @@ export function AppShell() {
         ) : null}
 
         <main className="min-w-0 flex-1 space-y-4">
-          {status === "ready" && user ? (
-            <details className="rounded-xl border border-line bg-background px-4 py-3 text-xs">
-              <summary className="cursor-pointer font-medium text-text-strong">
-                {t("admin.session.title")} · {user.display_name || user.username}
-              </summary>
-              <dl className="mt-3 grid gap-3 border-t border-line pt-3 sm:grid-cols-2">
-                <div><dt className="text-text-muted">{t("admin.session.labelGroups")}</dt><dd className="mt-1 text-text-strong">{(user.groups ?? []).join(", ") || t("admin.session.groupsNone")}</dd></div>
-                <div><dt className="text-text-muted">{t("admin.session.labelPermissions")}</dt><dd className="mt-1 text-text-strong">{permissionSummary}</dd></div>
-              </dl>
-              <div className="mt-3"><Button type="button" onClick={refreshAll}>{t("admin.refresh")}</Button></div>
-            </details>
-          ) : null}
           {status === "loading" ? <Card title={t("admin.session.title")}><p className="text-xs text-text-muted">{t("admin.loading")}</p></Card> : null}
           {status === "anonymous" ? (
             <Card title={t("admin.session.title")} desc={t("admin.session.signInHint")}>
@@ -154,12 +135,12 @@ export function AppShell() {
               <Notice kind="err" text={t("admin.denied.body", { codes: formatLocaleList(TABS.flatMap((item) => item.codes), locale) })} />
             </Card>
           ) : null}
-          {status === "ready" && anyAllowed && tab === "boards" && allowed.boards ? <BoardsPanel reloadKey={reloadKey} /> : null}
-          {status === "ready" && anyAllowed && tab === "topics" && allowed.topics ? <TopicsPanel reloadKey={reloadKey} /> : null}
-          {status === "ready" && anyAllowed && tab === "posts" && allowed.posts ? <PostsPanel reloadKey={reloadKey} /> : null}
-          {status === "ready" && anyAllowed && tab === "reports" && allowed.reports ? <ReportsPanel reloadKey={reloadKey} /> : null}
-          {status === "ready" && anyAllowed && tab === "notifications" && allowed.notifications ? <NotificationsOutboxPanel reloadKey={reloadKey} /> : null}
-          {status === "ready" && anyAllowed && tab === "favorites" && allowed.favorites ? <FavoritesPanel reloadKey={reloadKey} /> : null}
+          {status === "ready" && anyAllowed && tab === "boards" && allowed.boards ? <BoardsPanel /> : null}
+          {status === "ready" && anyAllowed && tab === "topics" && allowed.topics ? <TopicsPanel /> : null}
+          {status === "ready" && anyAllowed && tab === "posts" && allowed.posts ? <PostsPanel /> : null}
+          {status === "ready" && anyAllowed && tab === "reports" && allowed.reports ? <ReportsPanel /> : null}
+          {status === "ready" && anyAllowed && tab === "notifications" && allowed.notifications ? <NotificationsOutboxPanel /> : null}
+          {status === "ready" && anyAllowed && tab === "favorites" && allowed.favorites ? <FavoritesPanel /> : null}
         </main>
       </div>
 

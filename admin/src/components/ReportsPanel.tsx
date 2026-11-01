@@ -73,7 +73,7 @@ import {
 
 const PAGE_SIZE = 20;
 
-export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
+export function ReportsPanel() {
   const { t, locale } = useI18n();
   const { can } = useSession();
   const mayReview = can(COMMUNITY_REPORT_REVIEW);
@@ -142,7 +142,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
     return () => {
       alive = false;
     };
-  }, [statusFilter, typeFilter, query, page, nonce, reloadKey, t, locale]);
+  }, [statusFilter, typeFilter, query, page, nonce, t, locale]);
 
   useEffect(() => {
     let alive = true;
@@ -167,7 +167,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
     return () => {
       alive = false;
     };
-  }, [appealStatus, appealPage, nonce, reloadKey, t, locale]);
+  }, [appealStatus, appealPage, nonce, t, locale]);
 
   const pages = useMemo(() => Math.max(1, Math.ceil((total || 0) / PAGE_SIZE)), [total]);
   useEffect(() => {

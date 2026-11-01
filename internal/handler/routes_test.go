@@ -32,6 +32,7 @@ var frozenRoutes = []string{
 	"GET /api/community/admin/reports",
 	"GET /api/community/admin/reports/:id",
 	"GET /api/community/boards",
+	"POST /api/community/boards",
 	"GET /api/community/entities/:id/collections",
 	"GET /api/community/entities/:id/posts",
 	"GET /api/community/feed",

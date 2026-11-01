@@ -80,6 +80,7 @@ var auditActions = map[string]string{
 	"POST /api/community/entities/:id/posts":               "comment.created",
 	"PUT /api/community/topics/:id/pin":                    "topic.pinned",
 	"PUT /api/community/boards/:code":                      "board.updated",
+	"POST /api/community/boards":                           "board.created",
 	"DELETE /api/community/topics/:id":                     "topic.deleted",
 	"DELETE /api/community/topics/:id/posts/:postId":       "post.deleted",
 	"DELETE /api/community/posts/:id":                      "comment.deleted",

@@ -1,8 +1,5 @@
 // 板块的纯逻辑：类型、候选值、四语校验、补丁差分、展示回退。
-// 契约来源（只读核对，未改服务端）：
-//   internal/handler/board.go:35-61  —— 四语齐备才算通过；"所有传入键都为空串"= 显式清空
-//   internal/handler/board.go:104-188—— PUT 只改传入字段，空载荷 400，code 不可改，无新建/删除
-//   internal/handler/forum.go:117-132—— 列表是裸数组，10 个字段
+// 代码创建后不可改；配置更新只提交实际变化的字段。
 import { BOARD_LOCALES, orderLocales } from "./locales.ts";
 
 /** 固定语种清单由 locales.ts 提供（与错误码里的语种解析同一份，不重复声明）。 */

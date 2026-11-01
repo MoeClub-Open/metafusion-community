@@ -13,7 +13,7 @@ import { useSession } from "@/lib/session-context";
 import { BoardEditor, BOARD_FIELD_KEYS } from "./BoardEditor";
 import { Badge, Button, Card, CELL_CLASS, EmptyRow, HEAD_CLASS, LoadingRow, Notice, TextInput } from "./ui";
 
-export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
+export function BoardsPanel() {
   const { t, locale } = useI18n();
   const { can } = useSession();
   const allowed = can(COMMUNITY_BOARD_MANAGE);
@@ -23,6 +23,7 @@ export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<BoardRow | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
   const [message, setMessage] = useState<{ kind: "ok" | "info"; text: string } | null>(null);
   const [nonce, setNonce] = useState(0);
 
@@ -46,7 +47,7 @@ export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
     return () => {
       alive = false;
     };
-  }, [nonce, reloadKey, t, locale]);
+  }, [nonce, t, locale]);
 
   const visible = useMemo(() => rows.filter((row) => boardMatchesQuery(row, query)), [rows, query]);
 
@@ -59,21 +60,23 @@ export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
   }
 
   const onSaved = (updated: BoardRow, fields: string[]) => {
-    setRows((prev) => prev.map((row) => (row.code === updated.code ? updated : row)));
+    setRows(prev => [...prev.filter(row => row.code !== updated.code), updated].sort((a, b) => a.sort_order - b.sort_order || a.code.localeCompare(b.code)));
+    setEditorOpen(false);
     setEditing(null);
     const names = fields.map((name) => t(BOARD_FIELD_KEYS[name] ?? name)).join("、");
-    setMessage({ kind: "ok", text: t("admin.boards.saved", { code: updated.code, fields: names }) });
+    setMessage({ kind: "ok", text: editing ? t("admin.boards.saved", { code: updated.code, fields: names }) : t("admin.boards.created", { code: updated.code }) });
   };
 
   return (
     <Card
       title={t("admin.boards.title")}
       desc={t("admin.boards.desc")}
-      actions={
+      actions={<>
+        <Button type="button" variant="primary" onClick={() => { setEditing(null); setEditorOpen(true); }}>{t("admin.boards.create")}</Button>
         <Button type="button" onClick={load} disabled={loading}>
           {t("admin.refresh")}
         </Button>
-      }
+      </>}
     >
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-3">
@@ -124,7 +127,7 @@ export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
                       <Badge tone={row.show_in_feed ? "ok" : "off"}>{row.show_in_feed ? t("admin.yes") : t("admin.no")}</Badge>
                     </td>
                     <td className={CELL_CLASS}>
-                      <Button type="button" onClick={() => setEditing(row)}>
+                      <Button type="button" onClick={() => { setEditing(row); setEditorOpen(true); }}>
                         {t("admin.boards.edit")}
                       </Button>
                     </td>
@@ -135,7 +138,7 @@ export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
         </div>
       </div>
 
-      {editing ? <BoardEditor row={editing} onClose={() => setEditing(null)} onSaved={onSaved} /> : null}
+      {editorOpen ? <BoardEditor row={editing} onClose={() => setEditorOpen(false)} onSaved={onSaved} /> : null}
     </Card>
   );
 }

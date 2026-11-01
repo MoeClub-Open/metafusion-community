@@ -31,6 +31,8 @@ const CODE_KEYS: Record<string, string> = {
   not_found: "admin.err.notFound",
   invalid_payload: "admin.err.invalidPayload",
   invalid_board: "admin.err.invalidBoard",
+  invalid_board_code: "admin.err.invalidBoardCode",
+  board_exists: "admin.err.boardExists",
   topic_locked: "admin.err.topicLocked",
   module_error: "admin.err.module",
   // 举报与申诉（handler/reports.go、reports_admin.go）的稳定码。
