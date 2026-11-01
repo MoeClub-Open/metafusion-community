@@ -25,7 +25,7 @@ export function Card(props: { title: string; desc?: string; actions?: React.Reac
 }
 
 const NOTICE_TONE: Record<string, string> = {
-  ok: "border-emerald-500/40 bg-emerald-500/10 text-text-strong",
+  ok: "border-success/40 bg-success/10 text-text-strong",
   err: "border-danger/40 bg-danger/10 text-text-strong",
   info: "border-primary/40 bg-primary/10 text-text-strong",
 };
@@ -46,10 +46,10 @@ export function Notice(props: { kind: "ok" | "err" | "info"; text: string; onClo
 }
 
 const BADGE_TONE: Record<string, string> = {
-  ok: "bg-emerald-500/15 text-text-strong",
-  off: "bg-white/5 text-text-muted",
+  ok: "bg-success/15 text-text-strong",
+  off: "bg-surfaceSubtle text-text-muted",
   info: "bg-primary/15 text-text-strong",
-  warn: "bg-amber-500/15 text-text-strong",
+  warn: "bg-warn/15 text-text-strong",
 };
 
 export function Badge(props: { tone?: "ok" | "off" | "info" | "warn"; children: React.ReactNode }) {
@@ -62,7 +62,7 @@ export function Badge(props: { tone?: "ok" | "off" | "info" | "warn"; children: 
 
 const BUTTON_TONE: Record<string, string> = {
   primary: "bg-primary text-primary-foreground hover:bg-primary/85 disabled:bg-primary/40",
-  ghost: "border border-line text-text-strong hover:bg-white/5",
+  ghost: "border border-line text-text-strong hover:bg-surfaceSubtle",
   danger: "border border-danger/50 text-text-strong hover:bg-danger/15",
 };
 

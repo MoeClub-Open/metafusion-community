@@ -27,7 +27,7 @@ test("四语字典键集合完全一致", () => {
     assert.deepEqual(Object.keys(dict).sort(), base, locale + " 的键集合与 zh-CN 不一致");
   }
   for (const key of base) {
-    assert.ok(key.startsWith("admin."), "键名必须带 admin. 前缀：" + key);
+    assert.ok(key.startsWith("admin.") || key.startsWith("theme.") || key === "revisions.close", "未知的文案命名空间：" + key);
   }
 });
 

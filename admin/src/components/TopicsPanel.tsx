@@ -192,7 +192,7 @@ export function TopicsPanel({ reloadKey }: { reloadKey: number }) {
 
         <div className="overflow-x-auto rounded-lg border border-line">
           <table className="w-full min-w-[820px] border-collapse">
-            <thead className="bg-white/5">
+            <thead className="bg-surfaceSubtle">
               <tr>
                 <th className={HEAD_CLASS}>{t("admin.topics.colTitle")}</th>
                 <th className={HEAD_CLASS}>{t("admin.topics.colBoard")}</th>
@@ -210,7 +210,7 @@ export function TopicsPanel({ reloadKey }: { reloadKey: number }) {
                   const own = user?.id && row.user_id === user.id;
                   const canDelete = mayModerate || own;
                   return (
-                    <tr key={row.id} className="hover:bg-white/5">
+                    <tr key={row.id} className="hover:bg-surfaceSubtle">
                       <td className={CELL_CLASS}>
                         <span className="flex flex-wrap items-center gap-1.5">
                           {row.is_pinned ? <Badge tone="warn">{t("admin.pinned")}</Badge> : null}

@@ -333,7 +333,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
 
           <div className="overflow-x-auto rounded-lg border border-line">
             <table className="w-full min-w-[900px] border-collapse">
-              <thead className="bg-white/5">
+              <thead className="bg-surfaceSubtle">
                 <tr>
                   <th className={HEAD_CLASS}>{t("admin.reports.colTarget")}</th>
                   <th className={HEAD_CLASS}>{t("admin.reports.colReason")}</th>
@@ -349,7 +349,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
                 {/* 空态只在这三种都没发生时才显示：加载中 / 取数失败 / 真的没有数据。 */}
                 {!loading && !error && rows.length === 0 ? <EmptyRow colSpan={7} text={t("admin.reports.empty")} /> : null}
                 {rows.map((row) => (
-                  <tr key={row.report.id} className="hover:bg-white/5">
+                  <tr key={row.report.id} className="hover:bg-surfaceSubtle">
                     <td className={CELL_CLASS}>
                       <span className="block max-w-md break-words">{targetSummary(row.report)}</span>
                       <span className="mt-1 block text-[11px] text-text-muted">
@@ -424,7 +424,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
 
           <div className="overflow-x-auto rounded-lg border border-line">
             <table className="w-full min-w-[820px] border-collapse">
-              <thead className="bg-white/5">
+              <thead className="bg-surfaceSubtle">
                 <tr>
                   <th className={HEAD_CLASS}>{t("admin.reports.appealColAppellant")}</th>
                   <th className={HEAD_CLASS}>{t("admin.reports.appealColReport")}</th>
@@ -440,7 +440,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
                   <EmptyRow colSpan={6} text={t("admin.reports.appealsEmpty")} />
                 ) : null}
                 {appeals.map((appeal) => (
-                  <tr key={appeal.id} className="hover:bg-white/5">
+                  <tr key={appeal.id} className="hover:bg-surfaceSubtle">
                     <td className={CELL_CLASS}>{appeal.appellant_name || t("admin.unknown")}</td>
                     <td className={CELL_CLASS}>
                       <span className="block text-[11px] text-text-muted">

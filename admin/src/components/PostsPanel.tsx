@@ -192,7 +192,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
 
           <div className="overflow-x-auto rounded-lg border border-line">
             <table className="w-full min-w-[880px] border-collapse">
-              <thead className="bg-white/5">
+              <thead className="bg-surfaceSubtle">
                 <tr>
                   <th className={HEAD_CLASS}>{t("admin.posts.colFloor")}</th>
                   <th className={HEAD_CLASS}>{t("admin.posts.colTopic")}</th>
@@ -208,7 +208,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
                 {!loading && rows.length === 0 ? <EmptyRow colSpan={7} text={t("admin.posts.empty")} /> : null}
                 {!loading &&
                   rows.map((row) => (
-                    <tr key={row.id} className="hover:bg-white/5">
+                    <tr key={row.id} className="hover:bg-surfaceSubtle">
                       <td className={CELL_CLASS + " font-mono text-[11px]"}>
                         {floorLabel(row.post_number)}
                         {row.reply_to_post_number ? (
@@ -282,7 +282,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
 
           <div className="overflow-x-auto rounded-lg border border-line">
             <table className="w-full min-w-[720px] border-collapse">
-              <thead className="bg-white/5">
+              <thead className="bg-surfaceSubtle">
                 <tr>
                   <th className={HEAD_CLASS}>{t("admin.posts.commentsColEntity")}</th>
                   <th className={HEAD_CLASS}>{t("admin.posts.commentsColAuthor")}</th>
@@ -296,7 +296,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
                 {!commentsLoading && comments.length === 0 ? <EmptyRow colSpan={5} text={t("admin.posts.commentsEmpty")} /> : null}
                 {!commentsLoading &&
                   comments.map((row) => (
-                    <tr key={row.id} className="hover:bg-white/5">
+                    <tr key={row.id} className="hover:bg-surfaceSubtle">
                       <td className={CELL_CLASS}>
                         {row.entity_id ? (
                           <a href={"/catalog/" + row.entity_id} target="_blank" rel="noreferrer" className="text-text-strong no-underline hover:underline">

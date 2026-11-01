@@ -88,7 +88,7 @@ export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
 
         <div className="overflow-x-auto rounded-lg border border-line">
           <table className="w-full min-w-[720px] border-collapse">
-            <thead className="bg-white/5">
+            <thead className="bg-surfaceSubtle">
               <tr>
                 <th className={HEAD_CLASS}>{t("admin.boards.colCode")}</th>
                 <th className={HEAD_CLASS}>{t("admin.boards.colName")}</th>
@@ -104,7 +104,7 @@ export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
               {!loading && visible.length === 0 ? <EmptyRow colSpan={7} text={t("admin.boards.empty")} /> : null}
               {!loading &&
                 visible.map((row) => (
-                  <tr key={row.code} className="hover:bg-white/5">
+                  <tr key={row.code} className="hover:bg-surfaceSubtle">
                     <td className={CELL_CLASS + " font-mono text-[11px]"}>{row.code}</td>
                     <td className={CELL_CLASS}>
                       <span className="block text-text-strong">{boardText(row.names, locale, row.code)}</span>
@@ -112,7 +112,7 @@ export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
                     </td>
                     <td className={CELL_CLASS}>
                       <span className="inline-flex items-center gap-2">
-                        <span className="rounded px-1.5 py-0.5 text-[10px] font-mono bg-white/5">{row.color}</span>
+                        <span className="rounded px-1.5 py-0.5 text-[10px] font-mono bg-surfaceSubtle">{row.color}</span>
                         <span className="text-[11px] text-text-muted">{row.icon}</span>
                       </span>
                     </td>

@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/MoeclubM/metafusion-community/internal/telemetry"
 	"github.com/gin-gonic/gin"
 
 	"github.com/MoeclubM/metafusion-community/internal/account"
@@ -82,7 +83,9 @@ func main() {
 	}
 
 	r := gin.New()
-	r.Use(gin.Logger(), gin.Recovery())
+	metrics := telemetry.New(db.DB(), "community")
+	defer metrics.Close()
+	r.Use(metrics.Middleware(), gin.Recovery())
 	// 真实客户端 IP：只信任显式声明的来源（TRUSTED_PROXIES，默认回环 + RFC1918 私网 =
 	// 网关容器所在网段）。配置非法就拒绝启动——静默退回"谁都不信"会让 ClientIP() 恒等于
 	// 网关地址，审计 actor_ip 与按 IP 的限流桶一起失真，而那种退化在功能上"看起来正常"。
