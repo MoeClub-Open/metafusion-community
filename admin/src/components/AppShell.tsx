@@ -1,5 +1,8 @@
 "use client";
 
+import { useTheme } from "@/lib/themeContext";
+import { ThemePicker } from "./ThemePicker";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n/provider";
 import { localeLabels, locales, type Locale } from "@/lib/i18n/routing";
@@ -35,12 +38,13 @@ function readHash(): string {
 export function AppShell() {
   const { t, locale, setLocale } = useI18n();
   const { status, user, error, reload, can } = useSession();
+  const { setTheme } = useTheme();
   const [embedded, setEmbedded] = useState(false);
   useEffect(() => {
-    const disconnect = connectAdminWorkspace(setLocale);
+    const disconnect = connectAdminWorkspace(setLocale, setTheme);
     setEmbedded(disconnect !== null);
     return disconnect ?? undefined;
-  }, [setLocale]);
+  }, [setLocale, setTheme]);
   const [tab, setTab] = useState<TabId | "">("");
   const [reloadKey, setReloadKey] = useState(0);
   const [signInHref, setSignInHref] = useState<string>(LOGIN_PATH);
@@ -84,18 +88,19 @@ export function AppShell() {
   }, [user, t]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-surface text-ink">
-      <header hidden={embedded} className="sticky top-0 z-30 border-b border-line bg-panel/95 backdrop-blur">
+    <div className="flex min-h-screen flex-col bg-background text-text-strong">
+      <header hidden={embedded} className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-[80rem] items-center justify-between gap-2 px-4 sm:px-6">
           <div className="flex min-w-0 flex-1 items-center gap-2">
-            <a href="/admin" aria-label={t("admin.backToHub")} title={t("admin.backToHub")} className="inline-flex h-11 w-11 sm:w-auto shrink-0 items-center justify-center gap-1 text-xs text-muted hover:text-ink"><span aria-hidden="true">←</span><span className="hidden sm:inline">{t("admin.backToHub")}</span></a>
-            <span className="hidden text-muted sm:inline">/</span>
-            <h1 className="min-w-0 truncate text-sm font-semibold text-ink">{t("admin.appTitle")}</h1>
+            <a href="/admin" aria-label={t("admin.backToHub")} title={t("admin.backToHub")} className="inline-flex h-11 w-11 sm:w-auto shrink-0 items-center justify-center gap-1 text-xs text-text-muted hover:text-text-strong"><span aria-hidden="true">←</span><span className="hidden sm:inline">{t("admin.backToHub")}</span></a>
+            <span className="hidden text-text-muted sm:inline">/</span>
+            <h1 className="min-w-0 truncate text-sm font-semibold text-text-strong">{t("admin.appTitle")}</h1>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <LocaleMenu />
             <ThemeModeSwitcher />
-            {user ? <span className="hidden max-w-[9rem] truncate rounded border border-accent/30 bg-accent/15 px-2 py-0.5 font-mono text-xs text-accent sm:inline-flex" title={user.username}>{user.username}</span> : null}
+            <ThemePicker />
+            {user ? <span className="hidden max-w-[9rem] truncate rounded border border-primary/30 bg-primary/15 px-2 py-0.5 font-mono text-xs text-primary sm:inline-flex" title={user.username}>{user.username}</span> : null}
           </div>
         </div>
       </header>
@@ -103,15 +108,15 @@ export function AppShell() {
       <div className="mx-auto flex w-full max-w-[80rem] flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row">
         {status === "ready" && anyAllowed ? (
           <aside className="w-full shrink-0 lg:w-52">
-            <div className="rounded-xl border border-line bg-surface p-3 lg:hidden">
-              <label htmlFor="community-admin-section" className="mb-2 block text-xs font-medium text-muted">{t("admin.navLabel")}</label>
-              <select id="community-admin-section" value={tab} onChange={(e) => selectTab(e.target.value as TabId)} className="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink">
+            <div className="rounded-xl border border-line bg-background p-3 lg:hidden">
+              <label htmlFor="community-admin-section" className="mb-2 block text-xs font-medium text-text-muted">{t("admin.navLabel")}</label>
+              <select id="community-admin-section" value={tab} onChange={(e) => selectTab(e.target.value as TabId)} className="w-full rounded-lg border border-line bg-background px-3 py-2.5 text-sm text-text-strong">
                 {visibleTabs.map((item) => <option key={item.id} value={item.id}>{t(item.labelKey)}</option>)}
               </select>
             </div>
-            <nav aria-label={t("admin.navLabel")} className={`sticky ${embedded ? "top-6" : "top-24"} hidden rounded-xl border border-line bg-surface p-2 lg:block`}>
+            <nav aria-label={t("admin.navLabel")} className={`sticky ${embedded ? "top-6" : "top-24"} hidden rounded-xl border border-line bg-background p-2 lg:block`}>
               {visibleTabs.map((item) => (
-                <button key={item.id} type="button" aria-current={tab === item.id ? "page" : undefined} onClick={() => selectTab(item.id)} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${tab === item.id ? "bg-accent/15 font-semibold text-ink" : "text-muted hover:bg-accent/10 hover:text-ink"}`}>
+                <button key={item.id} type="button" aria-current={tab === item.id ? "page" : undefined} onClick={() => selectTab(item.id)} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${tab === item.id ? "bg-primary/15 font-semibold text-text-strong" : "text-text-muted hover:bg-primary/10 hover:text-text-strong"}`}>
                   {t(item.labelKey)}
                 </button>
               ))}
@@ -121,18 +126,18 @@ export function AppShell() {
 
         <main className="min-w-0 flex-1 space-y-4">
           {status === "ready" && user ? (
-            <details className="rounded-xl border border-line bg-surface px-4 py-3 text-xs">
-              <summary className="cursor-pointer font-medium text-ink">
+            <details className="rounded-xl border border-line bg-background px-4 py-3 text-xs">
+              <summary className="cursor-pointer font-medium text-text-strong">
                 {t("admin.session.title")} · {user.display_name || user.username}
               </summary>
               <dl className="mt-3 grid gap-3 border-t border-line pt-3 sm:grid-cols-2">
-                <div><dt className="text-muted">{t("admin.session.labelGroups")}</dt><dd className="mt-1 text-ink">{(user.groups ?? []).join(", ") || t("admin.session.groupsNone")}</dd></div>
-                <div><dt className="text-muted">{t("admin.session.labelPermissions")}</dt><dd className="mt-1 text-ink">{permissionSummary}</dd></div>
+                <div><dt className="text-text-muted">{t("admin.session.labelGroups")}</dt><dd className="mt-1 text-text-strong">{(user.groups ?? []).join(", ") || t("admin.session.groupsNone")}</dd></div>
+                <div><dt className="text-text-muted">{t("admin.session.labelPermissions")}</dt><dd className="mt-1 text-text-strong">{permissionSummary}</dd></div>
               </dl>
               <div className="mt-3"><Button type="button" onClick={refreshAll}>{t("admin.refresh")}</Button></div>
             </details>
           ) : null}
-          {status === "loading" ? <Card title={t("admin.session.title")}><p className="text-xs text-muted">{t("admin.loading")}</p></Card> : null}
+          {status === "loading" ? <Card title={t("admin.session.title")}><p className="text-xs text-text-muted">{t("admin.loading")}</p></Card> : null}
           {status === "anonymous" ? (
             <Card title={t("admin.session.title")} desc={t("admin.session.signInHint")}>
               <a className="text-xs" href={signInHref}>{t("admin.session.goSignIn")}</a>
@@ -175,9 +180,9 @@ function LocaleMenu() {
     return () => { document.removeEventListener("mousedown", onPointer); document.removeEventListener("keydown", onKey); };
   }, [open]);
   return <div className="relative" ref={container}>
-    <button type="button" aria-label={t("admin.localeLabel")} title={t("admin.localeLabel")} aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)} className="grid h-9 w-9 place-items-center rounded-full border border-line bg-panel text-ink hover:border-accent"><span aria-hidden="true">文</span></button>
-    {open ? <div role="menu" aria-label={t("admin.localeLabel")} className="absolute right-0 z-50 mt-2 w-44 rounded-xl border border-line bg-panel p-1.5 shadow-xl">
-      {locales.map((code) => <button key={code} type="button" role="menuitemradio" aria-checked={locale === code} onClick={() => { setLocale(code as Locale); setOpen(false); }} className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs hover:bg-accent/10 " + (locale === code ? "font-semibold text-accent" : "text-ink")}>{localeLabels[code]}{locale === code ? "✓" : null}</button>)}
+    <button type="button" aria-label={t("admin.localeLabel")} title={t("admin.localeLabel")} aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)} className="grid h-9 w-9 place-items-center rounded-control border border-line bg-surface text-text-strong hover:border-primary"><span aria-hidden="true">文</span></button>
+    {open ? <div role="menu" aria-label={t("admin.localeLabel")} className="absolute right-0 z-50 mt-2 w-44 rounded-xl border border-line bg-surface p-1.5 shadow-xl">
+      {locales.map((code) => <button key={code} type="button" role="menuitemradio" aria-checked={locale === code} onClick={() => { setLocale(code as Locale); setOpen(false); }} className={"flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs hover:bg-primary/10 " + (locale === code ? "font-semibold text-primary" : "text-text-strong")}>{localeLabels[code]}{locale === code ? "✓" : null}</button>)}
     </div> : null}
   </div>;
 }

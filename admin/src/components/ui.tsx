@@ -6,16 +6,16 @@
 import React from "react";
 import { useI18n } from "@/lib/i18n/provider";
 
-export const HEAD_CLASS = "px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-muted";
-export const CELL_CLASS = "px-3 py-2 text-xs align-top text-ink";
+export const HEAD_CLASS = "px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-text-muted";
+export const CELL_CLASS = "px-3 py-2 text-xs align-top text-text-strong";
 
 export function Card(props: { title: string; desc?: string; actions?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-line bg-panel/80">
+    <section className="rounded-xl border border-line bg-surface/80">
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-4 py-3">
         <div>
-          <h2 className="text-sm font-semibold text-ink">{props.title}</h2>
-          {props.desc ? <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted">{props.desc}</p> : null}
+          <h2 className="text-sm font-semibold text-text-strong">{props.title}</h2>
+          {props.desc ? <p className="mt-1 max-w-3xl text-xs leading-relaxed text-text-muted">{props.desc}</p> : null}
         </div>
         {props.actions ? <div className="flex items-center gap-2">{props.actions}</div> : null}
       </header>
@@ -25,9 +25,9 @@ export function Card(props: { title: string; desc?: string; actions?: React.Reac
 }
 
 const NOTICE_TONE: Record<string, string> = {
-  ok: "border-emerald-500/40 bg-emerald-500/10 text-ink",
-  err: "border-danger/40 bg-danger/10 text-ink",
-  info: "border-accent/40 bg-accent/10 text-ink",
+  ok: "border-emerald-500/40 bg-emerald-500/10 text-text-strong",
+  err: "border-danger/40 bg-danger/10 text-text-strong",
+  info: "border-primary/40 bg-primary/10 text-text-strong",
 };
 
 export function Notice(props: { kind: "ok" | "err" | "info"; text: string; onClose?: () => void }) {
@@ -46,10 +46,10 @@ export function Notice(props: { kind: "ok" | "err" | "info"; text: string; onClo
 }
 
 const BADGE_TONE: Record<string, string> = {
-  ok: "bg-emerald-500/15 text-ink",
-  off: "bg-white/5 text-muted",
-  info: "bg-accent/15 text-ink",
-  warn: "bg-amber-500/15 text-ink",
+  ok: "bg-emerald-500/15 text-text-strong",
+  off: "bg-white/5 text-text-muted",
+  info: "bg-primary/15 text-text-strong",
+  warn: "bg-amber-500/15 text-text-strong",
 };
 
 export function Badge(props: { tone?: "ok" | "off" | "info" | "warn"; children: React.ReactNode }) {
@@ -61,9 +61,9 @@ export function Badge(props: { tone?: "ok" | "off" | "info" | "warn"; children: 
 }
 
 const BUTTON_TONE: Record<string, string> = {
-  primary: "bg-accent text-white hover:bg-accent/85 disabled:bg-accent/40",
-  ghost: "border border-line text-ink hover:bg-white/5",
-  danger: "border border-danger/50 text-ink hover:bg-danger/15",
+  primary: "bg-primary text-primary-foreground hover:bg-primary/85 disabled:bg-primary/40",
+  ghost: "border border-line text-text-strong hover:bg-white/5",
+  danger: "border border-danger/50 text-text-strong hover:bg-danger/15",
 };
 
 export function Button(
@@ -89,7 +89,7 @@ export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...rest}
       className={
-        "w-full rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none " +
+        "w-full rounded-lg border border-line bg-background px-2.5 py-1.5 text-xs text-text-strong placeholder:text-text-muted/70 focus:border-primary focus:outline-none " +
         (className ?? "")
       }
     />
@@ -102,7 +102,7 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
     <select
       {...rest}
       className={
-        "w-full rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs text-ink focus:border-accent focus:outline-none " +
+        "w-full rounded-lg border border-line bg-background px-2.5 py-1.5 text-xs text-text-strong focus:border-primary focus:outline-none " +
         (className ?? "")
       }
     >
@@ -114,9 +114,9 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
 export function Field(props: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block space-y-1">
-      <span className="block text-[11px] font-medium text-muted">{props.label}</span>
+      <span className="block text-[11px] font-medium text-text-muted">{props.label}</span>
       {props.children}
-      {props.hint ? <span className="block text-[11px] leading-relaxed text-muted/80">{props.hint}</span> : null}
+      {props.hint ? <span className="block text-[11px] leading-relaxed text-text-muted/80">{props.hint}</span> : null}
     </label>
   );
 }
@@ -124,7 +124,7 @@ export function Field(props: { label: string; hint?: string; children: React.Rea
 export function Toggle(props: { checked: boolean; onChange: (next: boolean) => void; label: string; hint?: string; disabled?: boolean }) {
   return (
     <div className="space-y-1">
-      <label className="flex items-center gap-2 text-xs text-ink">
+      <label className="flex items-center gap-2 text-xs text-text-strong">
         <input
           type="checkbox"
           checked={props.checked}
@@ -134,7 +134,7 @@ export function Toggle(props: { checked: boolean; onChange: (next: boolean) => v
         />
         {props.label}
       </label>
-      {props.hint ? <p className="text-[11px] leading-relaxed text-muted/80">{props.hint}</p> : null}
+      {props.hint ? <p className="text-[11px] leading-relaxed text-text-muted/80">{props.hint}</p> : null}
     </div>
   );
 }
@@ -142,7 +142,7 @@ export function Toggle(props: { checked: boolean; onChange: (next: boolean) => v
 export function EmptyRow(props: { colSpan: number; text: string }) {
   return (
     <tr>
-      <td colSpan={props.colSpan} className="px-3 py-8 text-center text-xs text-muted">
+      <td colSpan={props.colSpan} className="px-3 py-8 text-center text-xs text-text-muted">
         {props.text}
       </td>
     </tr>
@@ -152,7 +152,7 @@ export function EmptyRow(props: { colSpan: number; text: string }) {
 export function LoadingRow(props: { colSpan: number; text: string }) {
   return (
     <tr>
-      <td colSpan={props.colSpan} className="px-3 py-8 text-center text-xs text-muted">
+      <td colSpan={props.colSpan} className="px-3 py-8 text-center text-xs text-text-muted">
         {props.text}
       </td>
     </tr>
@@ -170,7 +170,7 @@ export function Pagination(props: {
   const atEnd = props.page >= props.pages;
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 pt-3">
-      <span className="text-[11px] text-muted">{props.labels.info}</span>
+      <span className="text-[11px] text-text-muted">{props.labels.info}</span>
       <div className="flex items-center gap-2">
         <Button type="button" disabled={props.disabled || atStart} onClick={() => props.onChange(props.page - 1)}>
           {props.labels.prev}
@@ -225,10 +225,10 @@ export function Modal(props: { title: string; onClose: () => void; children: Rea
   if (!open) return null;
   return <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
     <div ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}
-      className={`w-full ${maxWidth} min-w-0 rounded-xl border border-line bg-panel p-5 sm:p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto outline-none`}>
+      className={`w-full ${maxWidth} min-w-0 rounded-xl border border-line bg-surface p-5 sm:p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto outline-none`}>
       <div className="flex items-center justify-between gap-3 border-b border-line/60 pb-3">
-        <h3 id={titleId} className="min-w-0 break-words text-sm font-semibold text-ink flex items-center gap-2">{title}</h3>
-        <button type="button" onClick={close} disabled={busy} aria-label={t("admin.close")} className="shrink-0 rounded-lg p-2 text-muted hover:bg-accent/10 disabled:opacity-50"><span aria-hidden="true">×</span></button>
+        <h3 id={titleId} className="min-w-0 break-words text-sm font-semibold text-text-strong flex items-center gap-2">{title}</h3>
+        <button type="button" onClick={close} disabled={busy} aria-label={t("admin.close")} className="shrink-0 rounded-lg p-2 text-text-muted hover:bg-primary/10 disabled:opacity-50"><span aria-hidden="true">×</span></button>
       </div>
       <div className="space-y-4">{children}</div>
       {props.footer ? <footer className="flex flex-wrap justify-end gap-2 border-t border-line pt-3">{props.footer}</footer> : null}
@@ -262,7 +262,7 @@ export function ConfirmDialog(props: {
         </>
       }
     >
-      <p className="text-xs leading-relaxed text-ink">{props.body}</p>
+      <p className="text-xs leading-relaxed text-text-strong">{props.body}</p>
     </Modal>
   );
 }

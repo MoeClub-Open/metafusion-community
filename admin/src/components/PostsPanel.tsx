@@ -160,7 +160,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
           <div className="flex flex-wrap items-end gap-3">
             <div className="w-full max-w-sm">
               <label className="block space-y-1">
-                <span className="block text-[11px] text-muted">{t("admin.search")}</span>
+                <span className="block text-[11px] text-text-muted">{t("admin.search")}</span>
                 <TextInput
                   value={searchText}
                   placeholder={t("admin.posts.searchPlaceholder")}
@@ -184,7 +184,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
             >
               {t("admin.search")}
             </Button>
-            <span className="text-[11px] text-muted">{t("admin.total", { total: formatNumber(total, locale) })}</span>
+            <span className="text-[11px] text-text-muted">{t("admin.total", { total: formatNumber(total, locale) })}</span>
           </div>
 
           {message ? <Notice kind="ok" text={message} onClose={() => setMessage("")} /> : null}
@@ -212,11 +212,11 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
                       <td className={CELL_CLASS + " font-mono text-[11px]"}>
                         {floorLabel(row.post_number)}
                         {row.reply_to_post_number ? (
-                          <span className="mt-1 block text-muted">{t("admin.posts.replyTo", { floor: row.reply_to_post_number })}</span>
+                          <span className="mt-1 block text-text-muted">{t("admin.posts.replyTo", { floor: row.reply_to_post_number })}</span>
                         ) : null}
                       </td>
                       <td className={CELL_CLASS}>
-                        <a href={"/community/" + row.topic_id} target="_blank" rel="noreferrer" className="text-ink no-underline hover:underline">
+                        <a href={"/community/" + row.topic_id} target="_blank" rel="noreferrer" className="text-text-strong no-underline hover:underline">
                           {row.topic_title || row.topic_id}
                         </a>
                       </td>
@@ -225,7 +225,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
                       <td className={CELL_CLASS}>{formatDateTime(row.created_at, locale)}</td>
                       <td className={CELL_CLASS}>
                         <span className="block max-w-md whitespace-pre-wrap break-words">{row.excerpt}</span>
-                        {row.truncated ? <span className="text-[11px] text-muted">{t("admin.posts.truncated")}</span> : null}
+                        {row.truncated ? <span className="text-[11px] text-text-muted">{t("admin.posts.truncated")}</span> : null}
                       </td>
                       <td className={CELL_CLASS}>
                         <Button type="button" variant="danger" disabled={busyId === row.id} onClick={() => setPending(row)}>
@@ -261,7 +261,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
           <div className="flex flex-wrap items-end gap-3">
             <div className="w-full max-w-sm">
               <label className="block space-y-1">
-                <span className="block text-[11px] text-muted">{t("admin.search")}</span>
+                <span className="block text-[11px] text-text-muted">{t("admin.search")}</span>
                 <TextInput
                   value={commentText}
                   placeholder={t("admin.posts.commentsSearchPlaceholder")}
@@ -275,7 +275,7 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
             <Button type="button" variant="primary" onClick={() => setCommentQuery(commentText)}>
               {t("admin.search")}
             </Button>
-            <span className="text-[11px] text-muted">{t("admin.posts.commentsLimit", { count: comments.length })}</span>
+            <span className="text-[11px] text-text-muted">{t("admin.posts.commentsLimit", { count: comments.length })}</span>
           </div>
 
           {commentsError ? <Notice kind="err" text={commentsError} onClose={() => setCommentsError("")} /> : null}
@@ -299,11 +299,11 @@ export function PostsPanel({ reloadKey }: { reloadKey: number }) {
                     <tr key={row.id} className="hover:bg-white/5">
                       <td className={CELL_CLASS}>
                         {row.entity_id ? (
-                          <a href={"/catalog/" + row.entity_id} target="_blank" rel="noreferrer" className="text-ink no-underline hover:underline">
+                          <a href={"/catalog/" + row.entity_id} target="_blank" rel="noreferrer" className="text-text-strong no-underline hover:underline">
                             {row.entity_title || row.entity_id}
                           </a>
                         ) : (
-                          <span className="text-muted">{t("admin.unknown")}</span>
+                          <span className="text-text-muted">{t("admin.unknown")}</span>
                         )}
                       </td>
                       <td className={CELL_CLASS}>{row.author_name || t("admin.unknown")}</td>

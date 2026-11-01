@@ -1,0 +1,6 @@
+/* 由 MetaFusion/frontend/scripts/sync-ui-theme.ts 同步，勿手改。 */
+@import "./theme.generated.css";
+@import "tailwindcss";
+@import "./theme.tokens.css";
+@import "./theme.base.css";
+@config "./../../../tailwind.config.ts";

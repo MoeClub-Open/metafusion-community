@@ -153,7 +153,7 @@ export function BoardEditor(props: { row: BoardRow; onClose: () => void; onSaved
           </>
         }
       >
-        <p className="text-[11px] leading-relaxed text-muted">{t("admin.boards.codeNote")}</p>
+        <p className="text-[11px] leading-relaxed text-text-muted">{t("admin.boards.codeNote")}</p>
 
         <div className="grid gap-3 sm:grid-cols-2">
           {BOARD_LOCALES.map((code) => (
@@ -208,7 +208,7 @@ export function BoardEditor(props: { row: BoardRow; onClose: () => void; onSaved
 
         {error ? <Notice kind="err" text={error} /> : null}
         {info ? <Notice kind="info" text={info} /> : null}
-        <p className="text-[11px] leading-relaxed text-muted">
+        <p className="text-[11px] leading-relaxed text-text-muted">
           {patchFields.length > 0
             ? t("admin.boards.patchPreview", { fields: fieldsText(patchFields) })
             : t("admin.boards.noChange")}

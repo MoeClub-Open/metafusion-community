@@ -86,21 +86,21 @@ export function FavoritesPanel({ reloadKey }: { reloadKey: number }) {
         <Button type="button" onClick={() => { setDraft(EMPTY_FILTERS); setFilters(EMPTY_FILTERS); setPage(1); }}>{t("admin.clear")}</Button>
       </form>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <span className="text-xs text-muted">{t("admin.total", { total: formatNumber(total, locale) })}</span>
+        <span className="text-xs text-text-muted">{t("admin.total", { total: formatNumber(total, locale) })}</span>
         <Field label={t("admin.favorites.pageSize")}><Select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>{[20, 50, 100].map((value) => <option key={value} value={value}>{formatNumber(value, locale)}</option>)}</Select></Field>
       </div>
       {deleted ? <Notice kind="ok" text={t("admin.favorites.deleted")} onClose={() => setDeleted(false)} /> : null}
       {actionError ? <Notice kind="err" text={actionError} onClose={() => setActionError("")} /> : null}
       {error ? <Notice kind="err" text={error} /> : null}
       <div className="overflow-x-auto rounded-lg border border-line">
-        <table className="w-full min-w-[40rem] border-collapse"><thead className="bg-surface"><tr>
+        <table className="w-full min-w-[40rem] border-collapse"><thead className="bg-background"><tr>
           {["owner", "targetType", "target", "createdAt"].map((key) => <th key={key} scope="col" className={HEAD_CLASS}>{t(`admin.favorites.${key}`)}</th>)}
           <th scope="col" className={HEAD_CLASS}>{t("admin.actions")}</th>
         </tr></thead><tbody className="divide-y divide-line">
           {loading ? <LoadingRow colSpan={5} text={t("admin.loading")} /> : error ? null : rows.length === 0 ? <EmptyRow colSpan={5} text={t("admin.favorites.empty")} /> : rows.map((row) => <tr key={rowKey(row)}>
             <td className={CELL_CLASS + " break-all font-mono"}>{row.owner_id}</td>
             <td className={CELL_CLASS}>{t(`admin.favorites.type.${row.target_type}`)}</td>
-            <td className={CELL_CLASS + " break-all font-mono"}><a href={"/catalog/" + encodeURIComponent(row.target_id)} target="_blank" rel="noreferrer" className="text-ink hover:underline">{row.target_id}</a></td>
+            <td className={CELL_CLASS + " break-all font-mono"}><a href={"/catalog/" + encodeURIComponent(row.target_id)} target="_blank" rel="noreferrer" className="text-text-strong hover:underline">{row.target_id}</a></td>
             <td className={CELL_CLASS}>{formatDateTime(row.created_at, locale)}</td>
             <td className={CELL_CLASS}><Button type="button" variant="danger" disabled={deleting} onClick={() => setPending(row)}>{t("admin.delete")}</Button></td>
           </tr>)}

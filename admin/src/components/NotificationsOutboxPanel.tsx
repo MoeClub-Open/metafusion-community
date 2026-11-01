@@ -84,21 +84,21 @@ export function NotificationsOutboxPanel({ reloadKey }: { reloadKey: number }) {
             {[20, 50, 100].map((value) => <option key={value} value={value}>{formatNumber(value, locale)}</option>)}
           </Select>
         </Field>
-        <span className="pb-1 text-xs text-muted">{t("admin.total", { total: formatNumber(total, locale) })}</span>
+        <span className="pb-1 text-xs text-text-muted">{t("admin.total", { total: formatNumber(total, locale) })}</span>
       </div>
-      <p className="text-xs leading-relaxed text-muted">{t("admin.notifications.retryHint")}</p>
+      <p className="text-xs leading-relaxed text-text-muted">{t("admin.notifications.retryHint")}</p>
       {retryResult ? <Notice kind="ok" text={t("admin.notifications.retried", { retried: formatNumber(retryResult.retried, locale), sent: formatNumber(retryResult.sent, locale), expired: formatNumber(retryResult.expired, locale) })} onClose={() => setRetryResult(null)} /> : null}
       {actionError ? <Notice kind="err" text={actionError} onClose={() => setActionError("")} /> : null}
       {error ? <Notice kind="err" text={error} /> : null}
       <div className="overflow-x-auto rounded-lg border border-line">
         <table className="w-full min-w-[44rem] border-collapse">
-          <thead className="bg-surface"><tr>
+          <thead className="bg-background"><tr>
             {["colNotification", "colRecipient", "colStatus", "colAttempts", "colNextRetry", "colError"].map((key) => <th key={key} className={HEAD_CLASS} scope="col">{t(`admin.notifications.${key}`)}</th>)}
             <th className={HEAD_CLASS} scope="col">{t("admin.actions")}</th>
           </tr></thead>
           <tbody className="divide-y divide-line">
             {loading ? <LoadingRow colSpan={7} text={t("admin.loading")} /> : error ? null : rows.length === 0 ? <EmptyRow colSpan={7} text={t("admin.notifications.empty")} /> : rows.map((row) => <tr key={row.id}>
-              <td className={CELL_CLASS}><div className="font-mono">{row.type}</div><div className="mt-1 max-w-[14rem] truncate text-muted" title={row.id}>{row.id}</div><div className="mt-1 text-muted">{formatDateTime(row.created_at, locale)}</div></td>
+              <td className={CELL_CLASS}><div className="font-mono">{row.type}</div><div className="mt-1 max-w-[14rem] truncate text-text-muted" title={row.id}>{row.id}</div><div className="mt-1 text-text-muted">{formatDateTime(row.created_at, locale)}</div></td>
               <td className={CELL_CLASS}><span className="break-all font-mono">{row.recipient_id}</span></td>
               <td className={CELL_CLASS}><Badge tone={row.status === "sent" ? "ok" : row.status === "failed" ? "warn" : row.status === "pending" ? "info" : "off"}>{t(`admin.notifications.status.${row.status}`)}</Badge></td>
               <td className={CELL_CLASS}>{formatNumber(row.attempts, locale)}</td>
@@ -121,9 +121,9 @@ export function NotificationsOutboxPanel({ reloadKey }: { reloadKey: number }) {
           ["colAttempts", formatNumber(detail.attempts, locale)], ["colNextRetry", detail.status === "pending" ? formatDateTime(detail.next_retry_at, locale) : "—"],
           ["createdAt", formatDateTime(detail.created_at, locale)], ["updatedAt", formatDateTime(detail.updated_at, locale)],
           ["expiresAt", formatDateTime(detail.expires_at, locale)], ["colError", detail.last_error || "—"],
-        ].map(([key, value]) => <div key={key}><dt className="text-muted">{t(`admin.notifications.${key}`)}</dt><dd className="mt-1 break-all text-ink">{value}</dd></div>)}
+        ].map(([key, value]) => <div key={key}><dt className="text-text-muted">{t(`admin.notifications.${key}`)}</dt><dd className="mt-1 break-all text-text-strong">{value}</dd></div>)}
       </dl>
-      <details><summary className="cursor-pointer text-xs font-medium">{t("admin.notifications.payload")}</summary><pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words rounded-lg border border-line bg-surface p-3 text-xs">{JSON.stringify(detail.payload, null, 2)}</pre></details>
+      <details><summary className="cursor-pointer text-xs font-medium">{t("admin.notifications.payload")}</summary><pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words rounded-lg border border-line bg-background p-3 text-xs">{JSON.stringify(detail.payload, null, 2)}</pre></details>
     </Modal> : null}
   </Card>;
 }

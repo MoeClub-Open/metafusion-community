@@ -325,7 +325,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
             >
               {t("admin.search")}
             </Button>
-            <span className="text-[11px] text-muted">{t("admin.total", { total: formatNumber(total, locale) })}</span>
+            <span className="text-[11px] text-text-muted">{t("admin.total", { total: formatNumber(total, locale) })}</span>
           </div>
 
           {message ? <Notice kind="ok" text={message} onClose={() => setMessage("")} /> : null}
@@ -352,7 +352,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
                   <tr key={row.report.id} className="hover:bg-white/5">
                     <td className={CELL_CLASS}>
                       <span className="block max-w-md break-words">{targetSummary(row.report)}</span>
-                      <span className="mt-1 block text-[11px] text-muted">
+                      <span className="mt-1 block text-[11px] text-text-muted">
                         {t(targetTypeLabelKey(row.report.target_type))} · {row.report.target_id}
                       </span>
                     </td>
@@ -362,13 +362,13 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
                     <td className={CELL_CLASS}>
                       <Badge tone={statusTone(row.report.status)}>{t(statusLabelKey(row.report.status))}</Badge>
                       {row.appeal ? (
-                        <span className="mt-1 block text-[11px] text-muted">
+                        <span className="mt-1 block text-[11px] text-text-muted">
                           {t("admin.reports.hasAppeal", { status: t(appealStatusLabelKey(row.appeal.status)) })}
                         </span>
                       ) : null}
                     </td>
                     <td className={CELL_CLASS}>
-                      {row.report.reviewer_name ? row.report.reviewer_name : <span className="text-muted">{t("admin.reports.unhandled")}</span>}
+                      {row.report.reviewer_name ? row.report.reviewer_name : <span className="text-text-muted">{t("admin.reports.unhandled")}</span>}
                     </td>
                     <td className={CELL_CLASS}>
                       <Button type="button" onClick={() => openDetail(row.report)}>
@@ -443,7 +443,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
                   <tr key={appeal.id} className="hover:bg-white/5">
                     <td className={CELL_CLASS}>{appeal.appellant_name || t("admin.unknown")}</td>
                     <td className={CELL_CLASS}>
-                      <span className="block text-[11px] text-muted">
+                      <span className="block text-[11px] text-text-muted">
                         {appeal.target_type ? t(targetTypeLabelKey(appeal.target_type)) : t("admin.unknown")} ·{" "}
                         {appeal.reason ? t(reasonLabelKey(appeal.reason)) : t("admin.unknown")}
                       </span>
@@ -487,7 +487,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
 
       {detailLoading ? (
         <Modal title={t("admin.reports.detailTitle")} onClose={() => setDetail(null)} wide>
-          <p className="text-xs text-muted">{t("admin.loading")}</p>
+          <p className="text-xs text-text-muted">{t("admin.loading")}</p>
         </Modal>
       ) : null}
 
@@ -517,60 +517,60 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
             {detailError ? <Notice kind="err" text={detailError} onClose={() => setDetailError("")} /> : null}
             <dl className="grid gap-2 text-xs sm:grid-cols-2">
               <div>
-                <dt className="text-[11px] text-muted">{t("admin.reports.colTarget")}</dt>
-                <dd className="text-ink">
+                <dt className="text-[11px] text-text-muted">{t("admin.reports.colTarget")}</dt>
+                <dd className="text-text-strong">
                   {t(targetTypeLabelKey(detail.item.target_type))} · <span className="font-mono">{detail.item.target_id}</span>
                 </dd>
               </div>
               <div>
-                <dt className="text-[11px] text-muted">{t("admin.reports.colReason")}</dt>
-                <dd className="text-ink">{t(reasonLabelKey(detail.item.reason))}</dd>
+                <dt className="text-[11px] text-text-muted">{t("admin.reports.colReason")}</dt>
+                <dd className="text-text-strong">{t(reasonLabelKey(detail.item.reason))}</dd>
               </div>
               <div>
-                <dt className="text-[11px] text-muted">{t("admin.reports.colReporter")}</dt>
-                <dd className="text-ink">{detail.item.reporter_name || t("admin.unknown")}</dd>
+                <dt className="text-[11px] text-text-muted">{t("admin.reports.colReporter")}</dt>
+                <dd className="text-text-strong">{detail.item.reporter_name || t("admin.unknown")}</dd>
               </div>
               <div>
-                <dt className="text-[11px] text-muted">{t("admin.reports.colStatus")}</dt>
-                <dd className="text-ink">
+                <dt className="text-[11px] text-text-muted">{t("admin.reports.colStatus")}</dt>
+                <dd className="text-text-strong">
                   <Badge tone={statusTone(detail.item.status)}>{t(statusLabelKey(detail.item.status))}</Badge>
                 </dd>
               </div>
               <div>
-                <dt className="text-[11px] text-muted">{t("admin.reports.targetAuthor")}</dt>
-                <dd className="text-ink">{detail.item.target_author_name || t("admin.reports.targetAuthorUnknown")}</dd>
+                <dt className="text-[11px] text-text-muted">{t("admin.reports.targetAuthor")}</dt>
+                <dd className="text-text-strong">{detail.item.target_author_name || t("admin.reports.targetAuthorUnknown")}</dd>
               </div>
               <div>
-                <dt className="text-[11px] text-muted">{t("admin.reports.contentState")}</dt>
-                <dd className="text-ink">{detail.target_present ? t("admin.reports.contentPresent") : t("admin.reports.contentGone")}</dd>
+                <dt className="text-[11px] text-text-muted">{t("admin.reports.contentState")}</dt>
+                <dd className="text-text-strong">{detail.target_present ? t("admin.reports.contentPresent") : t("admin.reports.contentGone")}</dd>
               </div>
             </dl>
 
             {detail.item.detail ? (
               <div>
-                <p className="text-[11px] text-muted">{t("admin.reports.detailLabel")}</p>
-                <p className="mt-1 whitespace-pre-wrap break-words text-xs text-ink">{detail.item.detail}</p>
+                <p className="text-[11px] text-text-muted">{t("admin.reports.detailLabel")}</p>
+                <p className="mt-1 whitespace-pre-wrap break-words text-xs text-text-strong">{detail.item.detail}</p>
               </div>
             ) : null}
             {detail.item.evidence_url ? (
               <div>
-                <p className="text-[11px] text-muted">{t("admin.reports.evidenceLabel")}</p>
-                <a className="mt-1 block break-all text-xs text-accent hover:underline" href={detail.item.evidence_url} target="_blank" rel="noreferrer">
+                <p className="text-[11px] text-text-muted">{t("admin.reports.evidenceLabel")}</p>
+                <a className="mt-1 block break-all text-xs text-primary hover:underline" href={detail.item.evidence_url} target="_blank" rel="noreferrer">
                   {detail.item.evidence_url}
                 </a>
               </div>
             ) : null}
 
             <div>
-              <p className="text-[11px] text-muted">{t("admin.reports.timeline")}</p>
-              <ul className="mt-1 space-y-1 text-xs text-ink">
-                {detail.events.length === 0 ? <li className="text-muted">{t("admin.reports.timelineEmpty")}</li> : null}
+              <p className="text-[11px] text-text-muted">{t("admin.reports.timeline")}</p>
+              <ul className="mt-1 space-y-1 text-xs text-text-strong">
+                {detail.events.length === 0 ? <li className="text-text-muted">{t("admin.reports.timelineEmpty")}</li> : null}
                 {detail.events.map((event, index) => (
                   <li key={index} className="flex flex-wrap items-baseline gap-2">
-                    <span className="text-muted">{formatDateTime(event.at, locale)}</span>
+                    <span className="text-text-muted">{formatDateTime(event.at, locale)}</span>
                     <span>{t(eventLabelKey(event.kind))}</span>
-                    <span className="text-muted">{event.actor_name || t("admin.unknown")}</span>
-                    {event.note ? <span className="text-muted">— {event.note}</span> : null}
+                    <span className="text-text-muted">{event.actor_name || t("admin.unknown")}</span>
+                    {event.note ? <span className="text-text-muted">— {event.note}</span> : null}
                   </li>
                 ))}
               </ul>
@@ -578,17 +578,17 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
 
             {detail.appeals.length > 0 ? (
               <div>
-                <p className="text-[11px] text-muted">{t("admin.reports.appealsTitle")}</p>
-                <ul className="mt-1 space-y-2 text-xs text-ink">
+                <p className="text-[11px] text-text-muted">{t("admin.reports.appealsTitle")}</p>
+                <ul className="mt-1 space-y-2 text-xs text-text-strong">
                   {detail.appeals.map((appeal) => (
                     <li key={appeal.id} className="rounded-lg border border-line px-3 py-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge tone={appealTone(appeal.status)}>{t(appealStatusLabelKey(appeal.status))}</Badge>
                         <span>{appeal.appellant_name || t("admin.unknown")}</span>
-                        <span className="text-muted">{formatDateTime(appeal.created_at, locale)}</span>
+                        <span className="text-text-muted">{formatDateTime(appeal.created_at, locale)}</span>
                       </div>
                       <p className="mt-1 whitespace-pre-wrap break-words">{appeal.body}</p>
-                      {appeal.review_note ? <p className="mt-1 text-muted">{appeal.review_note}</p> : null}
+                      {appeal.review_note ? <p className="mt-1 text-text-muted">{appeal.review_note}</p> : null}
                     </li>
                   ))}
                 </ul>
@@ -610,14 +610,14 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
                   </Select>
                 </Field>
                 {enforcement === "content_removed" ? (
-                  <p className="text-[11px] leading-relaxed text-muted">
+                  <p className="text-[11px] leading-relaxed text-text-muted">
                     {mayRemoveContent(detail.item)
                       ? t(detail.target_present ? "admin.reports.removeHint" : "admin.reports.removeHintGone")
                       : t("admin.reports.removeUnsupported")}
                   </p>
                 ) : null}
                 {enforcement === "user_banned" ? (
-                  <p className="text-[11px] leading-relaxed text-muted">{t("admin.reports.banHint")}</p>
+                  <p className="text-[11px] leading-relaxed text-text-muted">{t("admin.reports.banHint")}</p>
                 ) : null}
               </div>
             ) : null}
@@ -683,7 +683,7 @@ export function ReportsPanel({ reloadKey }: { reloadKey: number }) {
           }
         >
           <div className="space-y-3">
-            <p className="whitespace-pre-wrap break-words text-xs text-ink">{appealOpen.body}</p>
+            <p className="whitespace-pre-wrap break-words text-xs text-text-strong">{appealOpen.body}</p>
             <Field label={t("admin.reports.appealNoteLabel")} hint={t("admin.reports.noteHint")}>
               <TextInput value={appealNote} onChange={(e) => setAppealNote(e.target.value)} placeholder={t("admin.reports.notePlaceholder")} />
             </Field>

@@ -1,15 +1,11 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata, Viewport } from "next";
+import "@/shared/theme/globals.css";
 import { Providers } from "@/components/Providers";
+import { ThemeProvider } from "@/lib/themeContext";
+import { DEFAULT_ACCENT, DEFAULT_TONE, DEFAULT_PATTERN, DEFAULT_BG_DARK } from "@/lib/theme.generated";
+import { themeBootScript } from "@/shared/theme/boot.generated";
 
-const themeScript = `(function () {
-  try {
-    var mode = localStorage.getItem("metafusion_theme_mode") || "dark";
-    var effective = mode === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : mode;
-    document.documentElement.setAttribute("data-theme-mode", effective);
-    document.documentElement.style.colorScheme = effective;
-  } catch (e) {}
-})();`;
+export const viewport: Viewport = { themeColor: DEFAULT_BG_DARK };
 
 // 后台不进搜索引擎：它是运营界面，没有需要被发现的内容。
 export const metadata: Metadata = {
@@ -20,10 +16,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN" data-theme-mode="dark" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
-      <body>
+    <html lang="zh-CN" className="dark" data-theme-mode="dark" data-theme-accent={DEFAULT_ACCENT} data-theme-tone={DEFAULT_TONE} data-theme-pattern={DEFAULT_PATTERN} suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: themeBootScript }} /></head>
+      <body className="font-sans antialiased">
+        <ThemeProvider>
         <Providers>{children}</Providers>
+        </ThemeProvider>
       </body>
     </html>
   );

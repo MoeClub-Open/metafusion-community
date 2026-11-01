@@ -150,7 +150,7 @@ export function TopicsPanel({ reloadKey }: { reloadKey: number }) {
         <div className="flex flex-wrap items-end gap-3">
           <div className="w-48">
             <label className="block space-y-1">
-              <span className="block text-[11px] text-muted">{t("admin.topics.boardFilter")}</span>
+              <span className="block text-[11px] text-text-muted">{t("admin.topics.boardFilter")}</span>
               <Select
                 value={boardCode}
                 onChange={(e) => {
@@ -169,7 +169,7 @@ export function TopicsPanel({ reloadKey }: { reloadKey: number }) {
           </div>
           <div className="w-full max-w-xs">
             <label className="block space-y-1">
-              <span className="block text-[11px] text-muted">{t("admin.search")}</span>
+              <span className="block text-[11px] text-text-muted">{t("admin.search")}</span>
               <TextInput
                 value={searchText}
                 placeholder={t("admin.topics.searchPlaceholder")}
@@ -183,8 +183,8 @@ export function TopicsPanel({ reloadKey }: { reloadKey: number }) {
           <Button type="button" variant="primary" onClick={applySearch}>
             {t("admin.search")}
           </Button>
-          <span className="text-[11px] text-muted">{t("admin.total", { total: formatNumber(total, locale) })}</span>
-          <span className="text-[11px] text-muted">{t("admin.topics.commentNote")}</span>
+          <span className="text-[11px] text-text-muted">{t("admin.total", { total: formatNumber(total, locale) })}</span>
+          <span className="text-[11px] text-text-muted">{t("admin.topics.commentNote")}</span>
         </div>
 
         {message ? <Notice kind="ok" text={message} onClose={() => setMessage("")} /> : null}
@@ -215,12 +215,12 @@ export function TopicsPanel({ reloadKey }: { reloadKey: number }) {
                         <span className="flex flex-wrap items-center gap-1.5">
                           {row.is_pinned ? <Badge tone="warn">{t("admin.pinned")}</Badge> : null}
                           {row.is_locked ? <Badge tone="off">{t("admin.locked")}</Badge> : null}
-                          <a href={"/community/" + row.id} target="_blank" rel="noreferrer" className="text-ink no-underline hover:underline">
+                          <a href={"/community/" + row.id} target="_blank" rel="noreferrer" className="text-text-strong no-underline hover:underline">
                             {topicTitle(row)}
                           </a>
                         </span>
                         {row.entity_id ? (
-                          <span className="mt-1 block text-[11px] text-muted">
+                          <span className="mt-1 block text-[11px] text-text-muted">
                             {t("admin.topics.entityAnchor", { title: row.entity_title || row.entity_id })}
                           </span>
                         ) : null}

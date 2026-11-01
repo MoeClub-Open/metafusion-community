@@ -80,7 +80,7 @@ export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
           <div className="w-full max-w-xs">
             <TextInput value={query} placeholder={t("admin.boards.searchPlaceholder")} onChange={(e) => setQuery(e.target.value)} />
           </div>
-          <span className="text-[11px] text-muted">{t("admin.boards.showing", { shown: visible.length, total: rows.length })}</span>
+          <span className="text-[11px] text-text-muted">{t("admin.boards.showing", { shown: visible.length, total: rows.length })}</span>
         </div>
 
         {message ? <Notice kind={message.kind} text={message.text} onClose={() => setMessage(null)} /> : null}
@@ -107,13 +107,13 @@ export function BoardsPanel({ reloadKey }: { reloadKey: number }) {
                   <tr key={row.code} className="hover:bg-white/5">
                     <td className={CELL_CLASS + " font-mono text-[11px]"}>{row.code}</td>
                     <td className={CELL_CLASS}>
-                      <span className="block text-ink">{boardText(row.names, locale, row.code)}</span>
-                      <span className="block text-[11px] text-muted">{boardText(row.descriptions, locale)}</span>
+                      <span className="block text-text-strong">{boardText(row.names, locale, row.code)}</span>
+                      <span className="block text-[11px] text-text-muted">{boardText(row.descriptions, locale)}</span>
                     </td>
                     <td className={CELL_CLASS}>
                       <span className="inline-flex items-center gap-2">
                         <span className="rounded px-1.5 py-0.5 text-[10px] font-mono bg-white/5">{row.color}</span>
-                        <span className="text-[11px] text-muted">{row.icon}</span>
+                        <span className="text-[11px] text-text-muted">{row.icon}</span>
                       </span>
                     </td>
                     <td className={CELL_CLASS}>{row.sort_order}</td>
