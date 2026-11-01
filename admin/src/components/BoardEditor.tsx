@@ -176,7 +176,7 @@ export function BoardEditor(props: { row: BoardRow | null; onClose: () => void; 
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label={t("admin.boards.fieldColor")} hint={isKnownColor(form.color) ? undefined : t("admin.boards.colorCustom")}>
             <Select value={isKnownColor(form.color) ? form.color : "__custom"} onChange={(e) => setForm((p) => ({ ...p, color: e.target.value === "__custom" ? p.color : e.target.value }))}>
-              <option value="__custom">{form.color || "—"}</option>
+              {!isKnownColor(form.color) && <option value="__custom">{form.color || "—"}</option>}
               {BOARD_COLORS.map((color) => (
                 <option key={color} value={color}>
                   {color}
@@ -186,7 +186,7 @@ export function BoardEditor(props: { row: BoardRow | null; onClose: () => void; 
           </Field>
           <Field label={t("admin.boards.fieldIcon")} hint={isKnownIcon(form.icon) ? undefined : t("admin.boards.iconCustom")}>
             <Select value={isKnownIcon(form.icon) ? form.icon : "__custom"} onChange={(e) => setForm((p) => ({ ...p, icon: e.target.value === "__custom" ? p.icon : e.target.value }))}>
-              <option value="__custom">{form.icon || "—"}</option>
+              {!isKnownIcon(form.icon) && <option value="__custom">{form.icon || "—"}</option>}
               {BOARD_ICON_SUGGESTIONS.map((icon) => (
                 <option key={icon} value={icon}>
                   {icon}
