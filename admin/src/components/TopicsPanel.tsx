@@ -98,7 +98,7 @@ export function TopicsPanel() {
 
   if (!maySee) {
     return (
-      <Card title={t("admin.topics.title")} desc={t("admin.topics.desc")}>
+      <Card title={t("admin.topics.title")}>
         <Notice kind="err" text={t("admin.denied.body", { codes: COMMUNITY_TOPIC_PIN + ", " + COMMUNITY_POST_MODERATE })} />
       </Card>
     );
@@ -139,7 +139,6 @@ export function TopicsPanel() {
   return (
     <Card
       title={t("admin.topics.title")}
-      desc={t("admin.topics.desc")}
       actions={
         <Button type="button" onClick={reload} disabled={loading}>
           {t("admin.refresh")}

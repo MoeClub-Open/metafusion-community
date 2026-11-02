@@ -67,7 +67,7 @@ export function NotificationsOutboxPanel() {
     <Notice kind="err" text={t("admin.denied.body", { codes: COMMUNITY_REPORT_REVIEW })} />
   </Card>;
 
-  return <Card title={t("admin.notifications.title")} desc={t("admin.notifications.desc")} actions={<>
+  return <Card title={t("admin.notifications.title")} actions={<>
     <Button type="button" disabled={loading || retrying} onClick={() => setNonce((value) => value + 1)}>{t("admin.refresh")}</Button>
     <Button type="button" variant="primary" disabled={retrying} onClick={retryDue}>{t(retrying ? "admin.notifications.retrying" : "admin.notifications.retryDue")}</Button>
   </>}>

@@ -71,7 +71,7 @@ export function FavoritesPanel() {
     <Notice kind="err" text={t("admin.denied.body", { codes: COMMUNITY_REPORT_REVIEW })} />
   </Card>;
 
-  return <Card title={t("admin.favorites.title")} desc={t("admin.favorites.desc")} actions={<Button type="button" disabled={loading || deleting} onClick={() => setNonce((value) => value + 1)}>{t("admin.refresh")}</Button>}>
+  return <Card title={t("admin.favorites.title")} actions={<Button type="button" disabled={loading || deleting} onClick={() => setNonce((value) => value + 1)}>{t("admin.refresh")}</Button>}>
     <div className="space-y-3">
       <form className="flex flex-wrap items-end gap-3" onSubmit={(event) => { event.preventDefault(); setFilters({ ...draft }); setPage(1); }}>
         <div className="min-w-[14rem] flex-1"><Field label={t("admin.favorites.owner")}><TextInput value={draft.ownerID} placeholder={t("admin.favorites.idPlaceholder")} onChange={(event) => setDraft((value) => ({ ...value, ownerID: event.target.value }))} /></Field></div>

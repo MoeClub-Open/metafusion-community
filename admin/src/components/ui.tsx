@@ -9,17 +9,16 @@ import { useI18n } from "@/lib/i18n/provider";
 export const HEAD_CLASS = "px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-text-muted";
 export const CELL_CLASS = "px-3 py-2 text-xs align-top text-text-strong";
 
-export function Card(props: { title: string; desc?: string; actions?: React.ReactNode; children: React.ReactNode }) {
+export function Card(props: { title: string; actions?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-line bg-surface/80">
-      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-4 py-3">
+    <section className="space-y-3">
+      <header className="flex min-h-8 flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-sm font-semibold text-text-strong">{props.title}</h2>
-          {props.desc ? <p className="mt-1 max-w-3xl text-xs leading-relaxed text-text-muted">{props.desc}</p> : null}
         </div>
         {props.actions ? <div className="flex items-center gap-2">{props.actions}</div> : null}
       </header>
-      <div className="p-4">{props.children}</div>
+      <div>{props.children}</div>
     </section>
   );
 }
@@ -225,12 +224,12 @@ export function Modal(props: { title: string; onClose: () => void; children: Rea
   if (!open) return null;
   return <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
     <div ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}
-      className={`w-full ${maxWidth} min-w-0 rounded-xl border border-line bg-surface p-5 sm:p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto outline-none`}>
+      className={`w-full ${maxWidth} min-w-0 rounded-xl border border-line bg-surface p-5 sm:p-6 space-y-3 shadow-xl max-h-[90vh] overflow-y-auto outline-none`}>
       <div className="flex items-center justify-between gap-3 border-b border-line/60 pb-3">
         <h3 id={titleId} className="min-w-0 break-words text-sm font-semibold text-text-strong flex items-center gap-2">{title}</h3>
         <button type="button" onClick={close} disabled={busy} aria-label={t("admin.close")} className="shrink-0 rounded-lg p-2 text-text-muted hover:bg-primary/10 disabled:opacity-50"><span aria-hidden="true">×</span></button>
       </div>
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-3">{children}</div>
       {props.footer ? <footer className="flex flex-wrap justify-end gap-2 border-t border-line pt-3">{props.footer}</footer> : null}
     </div>
   </div>;

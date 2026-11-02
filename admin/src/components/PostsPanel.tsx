@@ -112,7 +112,7 @@ export function PostsPanel() {
 
   if (!mayModerate) {
     return (
-      <Card title={t("admin.posts.title")} desc={t("admin.posts.desc")}>
+      <Card title={t("admin.posts.title")}>
         <Notice kind="err" text={t("admin.denied.body", { codes: COMMUNITY_POST_MODERATE })} />
       </Card>
     );
@@ -146,10 +146,9 @@ export function PostsPanel() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       <Card
         title={t("admin.posts.title")}
-        desc={t("admin.posts.desc")}
         actions={
           <Button type="button" onClick={reloadReplies} disabled={loading}>
             {t("admin.refresh")}
@@ -250,7 +249,6 @@ export function PostsPanel() {
 
       <Card
         title={t("admin.posts.commentsTitle")}
-        desc={t("admin.posts.commentsDesc")}
         actions={
           <Button type="button" onClick={reloadComments} disabled={commentsLoading}>
             {t("admin.refresh")}

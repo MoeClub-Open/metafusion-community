@@ -245,17 +245,16 @@ export function ReportsPanel() {
 
   if (!mayReview) {
     return (
-      <Card title={t("admin.reports.title")} desc={t("admin.reports.desc")}>
+      <Card title={t("admin.reports.title")}>
         <Notice kind="err" text={t("admin.denied.body", { codes: COMMUNITY_REPORT_REVIEW })} />
       </Card>
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       <Card
         title={t("admin.reports.title")}
-        desc={t("admin.reports.desc")}
         actions={
           <Button type="button" onClick={reload} disabled={loading}>
             {t("admin.refresh")}
@@ -393,7 +392,6 @@ export function ReportsPanel() {
 
       <Card
         title={t("admin.reports.appealsTitle")}
-        desc={t("admin.reports.appealsDesc")}
         actions={
           <Button type="button" onClick={reload} disabled={appealLoading}>
             {t("admin.refresh")}

@@ -81,9 +81,9 @@ export function AppShell() {
   const anyAllowed = visibleTabs.length > 0;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-text-strong">
+    <div data-mf-admin className="flex min-h-screen flex-col bg-background text-text-strong">
       <header hidden={embedded} className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
-        <div className="mx-auto flex h-14 w-full max-w-[80rem] items-center justify-between gap-2 px-4 sm:px-6">
+        <div className="mx-auto flex h-12 w-full items-center justify-between gap-2 px-4 sm:px-6">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <a href="/admin" aria-label={t("admin.backToHub")} title={t("admin.backToHub")} className="inline-flex h-11 w-11 sm:w-auto shrink-0 items-center justify-center gap-1 text-xs text-text-muted hover:text-text-strong"><span aria-hidden="true">←</span><span className="hidden sm:inline">{t("admin.backToHub")}</span></a>
             <span className="hidden text-text-muted sm:inline">/</span>
@@ -98,18 +98,18 @@ export function AppShell() {
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-[80rem] flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row">
+      <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 py-3 lg:flex-row">
         {status === "ready" && anyAllowed ? (
-          <aside className="w-full shrink-0 lg:w-52">
-            <div className="rounded-xl border border-line bg-background p-3 lg:hidden">
-              <label htmlFor="community-admin-section" className="mb-2 block text-xs font-medium text-text-muted">{t("admin.navLabel")}</label>
-              <select id="community-admin-section" value={tab} onChange={(e) => selectTab(e.target.value as TabId)} className="w-full rounded-lg border border-line bg-background px-3 py-2.5 text-sm text-text-strong">
+          <aside className="w-full shrink-0 lg:w-[200px]">
+            <div className="flex items-center gap-2 lg:hidden">
+              <label htmlFor="community-admin-section" className="sr-only">{t("admin.navLabel")}</label>
+              <select id="community-admin-section" value={tab} onChange={(e) => selectTab(e.target.value as TabId)} className="min-w-0 flex-1 rounded-control border border-line bg-background px-2.5 py-2 text-sm text-text-strong">
                 {visibleTabs.map((item) => <option key={item.id} value={item.id}>{t(item.labelKey)}</option>)}
               </select>
             </div>
-            <nav aria-label={t("admin.navLabel")} className={`sticky ${embedded ? "top-6" : "top-24"} hidden rounded-xl border border-line bg-background p-2 lg:block`}>
+            <nav aria-label={t("admin.navLabel")} className={`sticky ${embedded ? "top-3" : "top-16"} hidden p-1 lg:block`}>
               {visibleTabs.map((item) => (
-                <button key={item.id} type="button" aria-current={tab === item.id ? "page" : undefined} onClick={() => selectTab(item.id)} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${tab === item.id ? "bg-primary/15 font-semibold text-text-strong" : "text-text-muted hover:bg-primary/10 hover:text-text-strong"}`}>
+                <button key={item.id} type="button" aria-current={tab === item.id ? "page" : undefined} onClick={() => selectTab(item.id)} className={`w-full rounded-control px-2 py-1.5 text-left text-[13px] transition-colors ${tab === item.id ? "bg-primary/15 font-semibold text-text-strong" : "text-text-muted hover:bg-primary/10 hover:text-text-strong"}`}>
                   {t(item.labelKey)}
                 </button>
               ))}
@@ -117,10 +117,10 @@ export function AppShell() {
           </aside>
         ) : null}
 
-        <main className="min-w-0 flex-1 space-y-4">
+        <main data-mf-admin-content className="min-w-0 flex-1 space-y-3">
           {status === "loading" ? <Card title={t("admin.session.title")}><p className="text-xs text-text-muted">{t("admin.loading")}</p></Card> : null}
           {status === "anonymous" ? (
-            <Card title={t("admin.session.title")} desc={t("admin.session.signInHint")}>
+            <Card title={t("admin.session.title")}>
               <a className="text-xs" href={signInHref}>{t("admin.session.goSignIn")}</a>
             </Card>
           ) : null}
@@ -131,7 +131,7 @@ export function AppShell() {
             </Card>
           ) : null}
           {status === "ready" && !anyAllowed ? (
-            <Card title={t("admin.denied.title")} desc={t("admin.denied.serviceNote")}>
+            <Card title={t("admin.denied.title")}>
               <Notice kind="err" text={t("admin.denied.body", { codes: formatLocaleList(TABS.flatMap((item) => item.codes), locale) })} />
             </Card>
           ) : null}

@@ -53,7 +53,7 @@ export function BoardsPanel() {
 
   if (!allowed) {
     return (
-      <Card title={t("admin.boards.title")} desc={t("admin.boards.desc")}>
+      <Card title={t("admin.boards.title")}>
         <Notice kind="err" text={t("admin.denied.body", { codes: COMMUNITY_BOARD_MANAGE })} />
       </Card>
     );
@@ -70,7 +70,6 @@ export function BoardsPanel() {
   return (
     <Card
       title={t("admin.boards.title")}
-      desc={t("admin.boards.desc")}
       actions={<>
         <Button type="button" variant="primary" onClick={() => { setEditing(null); setEditorOpen(true); }}>{t("admin.boards.create")}</Button>
         <Button type="button" onClick={load} disabled={loading}>
