@@ -2,7 +2,7 @@
 
 import { fetchApi } from "./client";
 
-export type FavoriteTargetType = "agent" | "collection" | "work" | "content_unit" | "expression" | "release" | "medium" | "track";
+export type FavoriteTargetType = "agent" | "collection" | "work" | "content_unit" | "expression" | "release" | "medium" | "track" | "event";
 
 /** Raw community-owned record; no catalog lookup or visibility projection. */
 export interface AdminFavoriteRow {

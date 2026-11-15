@@ -11,11 +11,12 @@ import (
 // 两边漂移会导致"代码允许、数据库拒绝"（或反向）——这类错编译期看不出来，
 // 只在第一次真实写入时才暴露，因此用一条静态用例把它钉住。
 func TestSchemaFavoriteKindsMatchCode(t *testing.T) {
-	re := regexp.MustCompile(`target_type text NOT NULL CHECK \(target_type IN \(([^)]*)\)\)`)
-	match := re.FindStringSubmatch(schemaDDL(t))
-	if match == nil {
+	re := regexp.MustCompile(`(?is)(?:target_type text NOT NULL|ADD CONSTRAINT favorites_target_type_check)\s+CHECK \(target_type IN \(([^)]*)\)\)`)
+	matches := re.FindAllStringSubmatch(schemaDDL(t), -1)
+	if len(matches) == 0 {
 		t.Fatal("storage schema 中找不到 favorites.target_type 的 CHECK 约束")
 	}
+	match := matches[len(matches)-1]
 	inSchema := map[string]bool{}
 	for _, raw := range strings.Split(match[1], ",") {
 		inSchema[strings.Trim(strings.TrimSpace(raw), "'")] = true

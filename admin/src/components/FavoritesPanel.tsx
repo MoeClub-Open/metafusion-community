@@ -9,7 +9,7 @@ import { COMMUNITY_REPORT_REVIEW } from "@/lib/permissions";
 import { useSession } from "@/lib/session-context";
 import { Button, Card, CELL_CLASS, ConfirmDialog, EmptyRow, Field, HEAD_CLASS, LoadingRow, Notice, Pagination, Select, TextInput } from "./ui";
 
-const TARGET_TYPES: FavoriteTargetType[] = ["agent", "collection", "work", "content_unit", "expression", "release", "medium", "track"];
+const TARGET_TYPES: FavoriteTargetType[] = ["agent", "collection", "work", "content_unit", "expression", "release", "medium", "track", "event"];
 const EMPTY_FILTERS = { ownerID: "", targetType: "" as FavoriteTargetType | "", targetID: "" };
 
 function rowKey(row: AdminFavoriteRow): string { return `${row.owner_id}:${row.target_type}:${row.target_id}`; }

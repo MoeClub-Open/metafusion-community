@@ -253,6 +253,7 @@
   "admin.favorites.type.release": "リリース",
   "admin.favorites.type.medium": "メディア",
   "admin.favorites.type.track": "トラック",
+  "admin.favorites.type.event": "イベント",
   "admin.err.invalidOwnerID": "ユーザー ID は完全な UUID で指定してください。",
   "admin.err.invalidTargetID": "対象 ID は完全な UUID で指定してください。",
   "admin.tab.notifications": "通知配信",

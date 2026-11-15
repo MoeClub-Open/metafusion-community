@@ -8,7 +8,7 @@ import (
 // 收藏目标类型就是固定八种实体骨架：多一个少一个都会让收藏指向不存在的维度，
 // 因此这里逐个锁定，而不是只测"某个字符串能用"。
 func TestFavoriteKindsCoverEntitySkeleton(t *testing.T) {
-	want := []string{"agent", "collection", "work", "content_unit", "expression", "release", "medium", "track"}
+	want := []string{"agent", "collection", "work", "content_unit", "expression", "release", "medium", "track", "event"}
 	if len(FavoriteKinds) != len(want) {
 		t.Fatalf("收藏目标类型数量 = %d, 期望 %d", len(FavoriteKinds), len(want))
 	}

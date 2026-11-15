@@ -10,7 +10,7 @@ import (
 	"github.com/lib/pq"
 )
 
-// FavoriteKinds 是收藏目标类型 → 实体 kind 的映射：键就是固定八种实体骨架本身，
+// FavoriteKinds 是收藏目标类型 → 实体 kind 的映射：键就是固定九种实体骨架本身，
 // 落库与读取不做词表映射（与主仓库同一口径）。
 var FavoriteKinds = map[string]string{
 	"agent":        "agent",
@@ -21,6 +21,7 @@ var FavoriteKinds = map[string]string{
 	"release":      "release",
 	"medium":       "medium",
 	"track":        "track",
+	"event":        "event",
 }
 
 // Favorite 是一条收藏记录。Entity 由调用方（HTTP 层）经目录服务解析后填入，

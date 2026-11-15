@@ -253,6 +253,7 @@
   "admin.favorites.type.release": "Release",
   "admin.favorites.type.medium": "Medium",
   "admin.favorites.type.track": "Track",
+  "admin.favorites.type.event": "Event",
   "admin.err.invalidOwnerID": "User ID must be a full UUID.",
   "admin.err.invalidTargetID": "Target ID must be a full UUID.",
   "admin.tab.notifications": "Notification delivery",

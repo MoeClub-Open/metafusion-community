@@ -253,6 +253,7 @@
   "admin.favorites.type.release": "發行版",
   "admin.favorites.type.medium": "載體",
   "admin.favorites.type.track": "軌道",
+  "admin.favorites.type.event": "活動",
   "admin.err.invalidOwnerID": "使用者 ID 必須是完整 UUID。",
   "admin.err.invalidTargetID": "目標 ID 必須是完整 UUID。",
   "admin.tab.notifications": "通知投遞",
